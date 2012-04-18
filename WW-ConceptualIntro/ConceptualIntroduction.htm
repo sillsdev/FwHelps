@@ -6,7 +6,7 @@
 	  <title>A Conceptual Introduction to Morphological Parsingfor Stage 1 of theFieldWorks Language Explorer</title><style type="text/css">.interblock { display: -moz-inline-box; display:inline-block; vertical-align: top; } </style></head>
    <body>
 	  <center><b><big><big><big>A Conceptual Introduction to Morphological Parsing<br>for Stage 1 of the<br><span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span></big></big></big></b></center>
-	  <center><i>H. Andrew Black</i></center><br><center><small>3-April-2012</small></center>
+	  <center><i>H. Andrew Black</i></center><br><center><small>18-April-2012</small></center>
 	  <hr>
 	  <div>
 		 <center><big><big><b>Contents</b></big></big></center>
@@ -203,13 +203,14 @@
 					 <li><a href="#sHCLimitAffixesApplyOnlyOnce">B.3.2&nbsp;Affixes are tried only once per word</a></li>
 					 <li><a href="#sHCLimitNoAdHocRules">B.3.3&nbsp;Natural classes defined by segments may or may not work as expected</a></li>
 					 <li><a href="#sHCLimitNoAllomorphyByFeatures">B.3.4&nbsp;Affix allomorphs conditioned by morpho-syntactic features not implemented yet</a></li>
+					 <li><a href="#sHCLimitBoundRoots">B.3.5&nbsp;Bare bound roots and bound stems will parse</a></li>
 				  </ul>
 			   </ul>
 			</li>
 			<li><a href="#rXLingPapEndnotes">Endnotes</a></li>
 			<li><a href="#rXLingPapReferences">References</a></li>
-			<li><a href="#rXLingPapIndex.d0e15162">Language Index</a></li>
-			<li><a href="#rXLingPapIndex.d0e15163">Subject Index</a></li>
+			<li><a href="#rXLingPapIndex.d0e15171">Language Index</a></li>
+			<li><a href="#rXLingPapIndex.d0e15172">Subject Index</a></li>
 		 </ul>
 	  </div>
 	  <h1 style=""><a name="sIntro">1&nbsp;Introduction</a></h1>
@@ -12277,7 +12278,7 @@
 			</tr>
 		 </table>
 	  </div>
-	  <p><a name="rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13582"></a>We can use an <a name="rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13584"></a>exception &#8220;feature&#8221; to handle this exception.  We do the following steps:
+	  <p><a name="rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13582"></a>We can use an <a name="rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13584"></a>exception &#8220;feature&#8221; to handle this exception. We do the following steps:
 	  </p>
 	  <div style="margin-left: 0.25in; margin-right: 0.25in">
 		 <table>
@@ -12289,7 +12290,7 @@
 						<td>
 						   <div style="background-color: #fffccc;">
 							  <ol style="list-style-type:decimal; ">
-								 <li>Create the exception &#8220;feature&#8221;.  We could call it &#8216;Does not undergo voiceless obstruent deletion&#8221; because this is the rule
+								 <li>Create the exception &#8220;feature&#8221;. We could call it &#8216;Does not undergo voiceless obstruent deletion&#8221; because this is the rule
 									that does not apply (see <a href="#xIndonesianUnspecifedVoicelessObstruentDeletionRule">194)</a>.
 								 </li>
 								 <li>Create or find the <span style="color:blue; ">per</span>- entry.
@@ -12306,9 +12307,8 @@
 			</tr>
 		 </table>
 	  </div>
-	  <p>When the <span style="color:navy; ">experimental phonological rule-based parser</span> finds the <span style="color:blue; ">per</span>- morpheme, it will no longer try to apply the delete voiceless obstruent rule because it will be excluded.  (Please note
-		 that you will only see that this rule is not applied during the synthesis process; during analysis, the rule will still be
-		 &#8220;unapplied.&#8221;)
+	  <p>When the <span style="color:navy; ">experimental phonological rule-based parser</span> finds the <span style="color:blue; ">per</span>- morpheme, it will no longer try to apply the delete voiceless obstruent rule because it will be excluded. (Please note that
+		 you will only see that this rule is not applied during the synthesis process; during analysis, the rule will still be &#8220;unapplied.&#8221;)
 	  </p>
 	  <p>The second exception is for loan words. Consider the following words:</p>
 	  <div style="margin-left: 0.25in; margin-right: 0.25in">
@@ -12419,8 +12419,8 @@
 			</tr>
 		 </table>
 	  </div>
-	  <p>The crucial thing to notice here is that in none of these does the initial consonant of the stem delete.  <a name="rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13660"></a>To handle these, add the exception &#8220;feature&#8221; created above to each stem entry. <a href="#rSneddon">Sneddon (1996:12)</a> notes that as a loan word ceases to be considered as foreign and becomes thought of as part of the native vocabulary, the
-		 expected deletion will occur.   If you find that happening for some word, merely remove the exception &#8220;feature&#8221; from it and
+	  <p>The crucial thing to notice here is that in none of these does the initial consonant of the stem delete. <a name="rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13660"></a>To handle these, add the exception &#8220;feature&#8221; created above to each stem entry. <a href="#rSneddon">Sneddon (1996:12)</a> notes that as a loan word ceases to be considered as foreign and becomes thought of as part of the native vocabulary, the
+		 expected deletion will occur. If you find that happening for some word, merely remove the exception &#8220;feature&#8221; from it and
 		 the deletion rule will then apply.
 	  </p>
 	  <p>The third exception is for monosyllabic stems, which <a href="#rSneddon">Sneddon (1996:13)</a> says are all loan words. <a name="rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13668"></a>These, too, can be handled via our exception &#8220;feature&#8221; by marking these stems as having this exception "feature.&#8221;<a name="rXLingPapIndexedItem.bIndonesianNasalAssimilation.d0e13670"></a></p>
@@ -12582,10 +12582,10 @@
 	  </p>
 	  <h4 style=""><a name="sHCRegularRuleConstrainingProperties">B.1.2.2.2&nbsp;Rule applies only with certain properties</a></h4>
 	  <p><a name="rXLingPapIndexedItem.iPhonRuleConstrainProperty.d0e13779"></a>The <span style="color:navy; ">experimental phonological rule-based parser</span> also allows one to constrain the application of a given phonological rule by limiting its application to when specified exception
-		 &#8220;features&#8221; or inflection classes are present or are not present.  If one says that this set of exception &#8220;features&#8221; and/or
-		 inflection classes are required, then every one of them must be present before the phonological rule will be applied.  If
-		 one says that this set of exception &#8220;features&#8221; and/or inflection classes are excluded, then the phonological rule will be
-		 applied only if none of these are present.
+		 &#8220;features&#8221; or inflection classes are present or are not present. If one says that this set of exception &#8220;features&#8221; and/or
+		 inflection classes are required, then every one of them must be present before the phonological rule will be applied. If one
+		 says that this set of exception &#8220;features&#8221; and/or inflection classes are excluded, then the phonological rule will be applied
+		 only if none of these are present.
 	  </p>
 	  <p><a name="rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13784"></a>See section <a href="#sIndonesianNasalMessLoans">B.1.2.1.4.3</a> for an example of using an exception &#8220;feature&#8221; which must not be present in order for a phonological rule to apply.<a name="rXLingPapIndexedItem.bPhonRuleConstrain.d0e13788"></a></p>
 	  <h3 style=""><a name="sHCPhonMetathesis">B.1.2.3&nbsp;Phonological metathesis rules</a></h3>
@@ -13319,6 +13319,10 @@
 	  </p>
 	  <h2 style=""><a name="sHCLimitNoAllomorphyByFeatures">B.3.4&nbsp;Affix allomorphs conditioned by morpho-syntactic features not implemented yet</a></h2>
 	  <p><a name="rXLingPapIndexedItem.iAffixAlloFeats.d0e14831"></a><a name="rXLingPapIndexedItem.iInflFeatAllomorphy.d0e14832"></a><a name="rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e14833"></a>The kind of allomorphy described in section <a href="#sAffixAlloFeats">3.8</a> is currently not handled by the new <span style="color:navy; ">experimental phonological rule-based parser</span>. Recall that these are affix allomorphs conditioned by non-phonological features.
+	  </p>
+	  <h2 style=""><a name="sHCLimitBoundRoots">B.3.5&nbsp;Bare bound roots and bound stems will parse</a></h2>
+	  <p>If you mark a root or a stem as being bound, the <span style="color:navy; ">experimental phonological rule-based parser</span> will not insist that such a form have some kind of affixation.  That is, a bare bound root or a bare bound stem will be allowed
+		 to parse successfully.  (The default <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> parser will fail such forms.)
 	  </p>
 	  <hr size="3"><a name="rXLingPapEndnotes">
 		 <p style=""><big><big><big><b><a name="">Endnotes</a></b></big></big></big></p></a><table>
@@ -14635,7 +14639,7 @@
 		 </p>
 	  </div>
 	  <hr>
-	  <a name="rXLingPapIndex.d0e15162">
+	  <a name="rXLingPapIndex.d0e15171">
 		 <p style=""><big><big><big><b><a name="">Language Index</a></b></big></big></big></p></a><div style="margin-left: 0.5in; margin-right: 0.5in">
 		 <a name="rXLingPapIndexTerm.iAtzingoPopoloca">Atzingo Popoloca&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAtzingoPopoloca.d0e3990">2.1.3.4.2</a>, <a href="#rXLingPapIndexedItem.iAtzingoPopoloca.d0e3997">2.1.3.4.2n</a><br><a name="rXLingPapIndexTerm.iAwngi">Awngi&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAwngi.d0e10844">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iAxinincaCampa">Axininca Campa&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAxinincaCampa.d0e8492">3.8</a>, <a href="#rXLingPapIndexedItem.iAxinincaCampa.d0e13681">B.1.2.2.1</a><br><a name="rXLingPapIndexTerm.iBahasaIndonesia">Bahasa Indonesia&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e7296">3.2.1</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e7481">3.2.1.1n</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e9355">4.3</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e9709">B.1.1.1.1</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e11101">B.1.2.1.4</a>-<a href="#rXLingPapIndexedItem.bIndonesianNasalAssimilation.d0e13670">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e14685">B.2.4</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e14712">B.2.6</a><br><a name="rXLingPapIndexTerm.iCaquinte">Caquinte&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iCaquinte.d0e660">1.1.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e667">1.1.4n</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e756">1.1.5</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e957">1.1.9</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e1018">1.1.10</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e1862">2.1.2.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e7963">3.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e8021">3.5</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e8100">3.6</a><br><a name="rXLingPapIndexTerm.iEnglish">English&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iEnglish.d0e457">1.1.2</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e3447">2.1.3.1</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e9022">3.10.1</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e9203">4.1.2</a><br><a name="rXLingPapIndexTerm.iHuallagaQuechua">Huallaga Quechua&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e531">1.1.2</a>, <a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e537">1.1.2n</a>, <a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e4337">2.1.4</a><br>Indonesian&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iBahasaIndonesia">Bahasa Indonesia</a>.<br>
 		 <a name="rXLingPapIndexTerm.iIsthmusZapotec">Isthmus Zapotec&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iIsthmusZapotec.d0e2432">2.1.2.6.1</a><br><a name="rXLingPapIndexTerm.iLatin">Latin&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iLatin.d0e2286">2.1.2.6</a><br><a name="rXLingPapIndexTerm.iMenya">Menya&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMenya.d0e8798">3.9</a><br><a name="rXLingPapIndexTerm.iOrizabaNahuatl">Orizaba Nahuatl&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e85">1.1.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e96">1.1.1n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e1250">2.1.2.1</a>-<a href="#rXLingPapIndexedItem.bOrizabaInflection.d0e1852">2.1.2.3</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4561">2.1.6</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4781">2.2.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4788">2.2.1n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e5266">2.2.3.2</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e5273">2.2.3.2n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e6220">3.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e7182">3.1.4</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e7541">3.2.2</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e8227">3.7</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e8234">3.7n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e10020">B.1.1.1.2</a><br>Popoloca&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iAtzingoPopoloca">Atzingo Popoloca</a>.<br>
@@ -14650,7 +14654,7 @@
 		 </div>
 	  </div>
 	  <hr>
-	  <a name="rXLingPapIndex.d0e15163">
+	  <a name="rXLingPapIndex.d0e15172">
 		 <p style=""><big><big><big><b><a name="">Subject Index</a></b></big></big></big></p></a><div style="margin-left: 0.5in; margin-right: 0.5in">
 		 <a name="rXLingPapIndexTerm.iAdhocConstraints">Ad hoc constraints&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocConstraints.d0e5971">2.4</a>, <a href="#rXLingPapIndexedItem.iAdhocConstraints.d0e8967">3.10</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iAdhocAllo">Allomorph-oriented&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocAllo.d0e8966">3.10</a>-<a href="#rXLingPapIndexedItem.bAllomorphAdhoc.d0e9146">3.10.2</a><br><a name="rXLingPapIndexTerm.iAdhocGroup">Grouping&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocGroup.d0e6055">2.4.2</a>, <a href="#rXLingPapIndexedItem.iAdhocGroup.d0e9124">3.10.2</a><br><a name="rXLingPapIndexTerm.iAdhocKeyAllo">Key Allomorph&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocKeyAllo.d0e8982">3.10.1</a><br><a name="rXLingPapIndexTerm.iAdhocKeyMorpheme">Key Morpheme&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocKeyMorpheme.d0e5986">2.4.1</a><br><a name="rXLingPapIndexTerm.iAdhocMorph">Morpheme-oriented&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocMorph.d0e5970">2.4</a>-<a href="#rXLingPapIndexedItem.bMorphemeAdhoc.d0e6206">2.4.2</a><br><a name="rXLingPapIndexTerm.iAdhocOtherAllomorphs">Other Allomorph(s)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocOtherAllomorphs.d0e8984">3.10.1</a><br><a name="rXLingPapIndexTerm.iAdhocOtherMorphemes">Other Morpheme(s)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocOtherMorphemes.d0e5988">2.4.1</a><br></div><a name="rXLingPapIndexTerm.iAffixes">Affixes&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixes.d0e1196">2.1</a>-<a href="#rXLingPapIndexedItem.bAffixes.d0e4748">2.1.6</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
