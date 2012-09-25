@@ -6,7 +6,7 @@
 	  <title>A Conceptual Introduction to Morphological Parsingfor Stage 1 of theFieldWorks Language Explorer</title><style type="text/css">.interblock { display: -moz-inline-box; display:inline-block; vertical-align: top; } </style></head>
    <body>
 	  <center><b><big><big><big>A Conceptual Introduction to Morphological Parsing<br>for Stage 1 of the<br><span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span></big></big></big></b></center>
-	  <center><i>H. Andrew Black<span style="font-size:65%; vertical-align:super">[<a href="#nJonathanCoombs">*</a>]</span></i></center><br><center><small>14-September-2012</small></center>
+	  <center><i>H. Andrew Black<span style="font-size:65%; vertical-align:super">[<a href="#nJonathanCoombs">*</a>]</span></i></center><br><center><small>25-September-2012</small></center>
 	  <hr>
 	  <div>
 		 <center><big><big><b>Contents</b></big></big></center>
@@ -188,15 +188,16 @@
 						<li><a href="#sHCPhonMetathesis">B.1.2.3&nbsp;Phonological metathesis rules</a></li>
 					 </ul>
 				  </ul>
-				  <li><a href="#sHermitCrabTips">B.2&nbsp;Tips for making the <span style="color:navy; ">experimental phonological rule-based parser</span> work effectively.</a></li>
+				  <li><a href="#sHermitCrabTips">B.2&nbsp;Tips for Making the <span style="color:navy; ">experimental phonological rule-based parser</span> Work Effectively.</a></li>
 				  <ul>
-					 <li><a href="#sHCTipsEveryPhonemeInOrthography">B.2.1&nbsp;Every phoneme used in the orthography must be defined as a phoneme</a></li>
+					 <li><a href="#sHCTipsEveryPhonemeInOrthography">B.2.1&nbsp;Every Phoneme Used in the Orthography Must be Defined as a Phoneme</a></li>
 					 <li><a href="#sHCTipsUniquePhoneme">B.2.2&nbsp;The Phonological Features Need to Uniquely Identify Each Phoneme</a></li>
 					 <li><a href="#sHCTipsFullySpecify">B.2.3&nbsp;Fully Specify Each Phoneme</a></li>
 					 <li><a href="#sHCTipsFearuesInRulesShouldBeExplicit">B.2.4&nbsp;Features Used in a Rule should be Explicit</a></li>
 					 <li><a href="#sHCTipsPhonemeInRule">B.2.5&nbsp;Using a Phoneme in a Rule is More Efficient</a></li>
-					 <li><a href="#sHCTipsCase">B.2.6&nbsp;Avoid using archiphonemes that are uppercase equivalents of a character in your orthography</a></li>
-					 <li><a href="#sHCTipsAffixProcess">B.2.7&nbsp;Make sure every affix process rule is complete</a></li>
+					 <li><a href="#sHCTipsCase">B.2.6&nbsp;Avoid Using Archiphonemes that are Uppercase Equivalents of a Character in Your Orthography</a></li>
+					 <li><a href="#sHCTipsAffixProcess">B.2.7&nbsp;Make Sure Every Affix Process Rule is Complete</a></li>
+					 <li><a href="#sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected </a></li>
 				  </ul>
 				  <li><a href="#sHermitCrabLimitations">B.3&nbsp;Known limitations</a></li>
 				  <ul>
@@ -210,8 +211,8 @@
 			</li>
 			<li><a href="#rXLingPapEndnotes">Endnotes</a></li>
 			<li><a href="#rXLingPapReferences">References</a></li>
-			<li><a href="#rXLingPapIndex.d0e15305">Language Index</a></li>
-			<li><a href="#rXLingPapIndex.d0e15306">Subject Index</a></li>
+			<li><a href="#rXLingPapIndex.d0e16219">Language Index</a></li>
+			<li><a href="#rXLingPapIndex.d0e16220">Subject Index</a></li>
 		 </ul>
 	  </div>
 	  <h1 style=""><a name="sIntro">1&nbsp;Introduction</a></h1>
@@ -13328,10 +13329,10 @@
 			</tr>
 		 </table>
 	  </div>
-	  <h1 style=""><a name="sHermitCrabTips">B.2&nbsp;Tips for making the <span style="color:navy; ">experimental phonological rule-based parser</span> work effectively.</a></h1>
+	  <h1 style=""><a name="sHermitCrabTips">B.2&nbsp;Tips for Making the <span style="color:navy; ">experimental phonological rule-based parser</span> Work Effectively.</a></h1>
 	  <p><a name="rXLingPapIndexedItem.iPhonRuleTips.d0e14765"></a>In my testing of the new <span style="color:navy; ">experimental phonological rule-based parser</span>, I noticed several key things one should keep in mind. These are given here.
 	  </p>
-	  <h2 style=""><a name="sHCTipsEveryPhonemeInOrthography">B.2.1&nbsp;Every phoneme used in the orthography must be defined as a phoneme</a></h2>
+	  <h2 style=""><a name="sHCTipsEveryPhonemeInOrthography">B.2.1&nbsp;Every Phoneme Used in the Orthography Must be Defined as a Phoneme</a></h2>
 	  <p><a name="rXLingPapIndexedItem.iPhonemes.d0e14773"></a><a name="rXLingPapIndexedItem.iPhonRulePhonemes.d0e14774"></a>The first thing to keep in mind when you use the new <span style="color:navy; ">experimental phonological rule-based parser</span> is that every phoneme used in the orthography must be listed among the phonemes in your language project.<span style="font-size:65%; vertical-align:super">[<a href="#nXAmpleAndPhonemes">85</a>]</span> If a word or an affix or a phonological rule has even just one phoneme that is not listed in the list of phonemes, then the
 		 new <span style="color:navy; ">experimental phonological rule-based parser</span> is guaranteed to not give an analysis for any word whatsoever, even if that word does not contain one of the missing phonemes.
 		 This is because the new parser crucially depends on phonemes being defined. This should not be surprising, really, for a parser
@@ -13363,7 +13364,7 @@
 	  <p><a name="rXLingPapIndexedItem.iPhonRulePhonemes.d0e14829"></a>When you have a choice between using features and a phoneme in a rule (i.e., the rule is about the phoneme), then write the
 		 rule in terms of the phoneme instead of some of its distinctive features. This is more efficient.
 	  </p>
-	  <h2 style=""><a name="sHCTipsCase">B.2.6&nbsp;Avoid using archiphonemes that are uppercase equivalents of a character in your orthography</a></h2>
+	  <h2 style=""><a name="sHCTipsCase">B.2.6&nbsp;Avoid Using Archiphonemes that are Uppercase Equivalents of a Character in Your Orthography</a></h2>
 	  <p><a name="rXLingPapIndexedItem.iPhonRuleArchiphoneme.d0e14835"></a>In testing the <a name="rXLingPapIndexedItem.iBahasaIndonesia.d0e14837"></a>Bahasa Indonesia data, I had an affix that ended with an unspecified nasal (this affix has nasal assimilation to the point
 		 of articulation of a following obstruent as explained in section <a href="#sIndonesianNasalAssimilation">B.1.2.1.4</a>). So I wrote a phonological rule to do the assimilation. To represent this affix, I used an archiphoneme of capital N. That
 		 is, I made it have the form <span style="color:blue; ">meN</span>-. I also added a new phoneme whose representation was also this archiphoneme <span style="color:blue; ">N</span>. Since the language already had an alveolar nasal (<span style="color:blue; ">n</span>), it turned out that the new <span style="color:navy; ">experimental phonological rule-based parser</span> did not successfully apply the rule.
@@ -13372,18 +13373,532 @@
 		 the representation and all lexical forms to use the superscript n. For example, the affix I mentioned above became <span style="color:blue; ">me&#8319;</span>-. Once I made these changes, the new <span style="color:navy; ">experimental phonological rule-based parser</span> was able to correctly parse words containing this morpheme. Note that it is not a problem to type forms such as <span style="color:blue; ">meN</span>- into the Citation Form field of an affix's entry for publication purposes, since the parser does not look at the Citation
 		 Form at all.
 	  </p>
-	  <h2 style=""><a name="sHCTipsAffixProcess">B.2.7&nbsp;Make sure every affix process rule is complete</a></h2>
+	  <h2 style=""><a name="sHCTipsAffixProcess">B.2.7&nbsp;Make Sure Every Affix Process Rule is Complete</a></h2>
 	  <p><a name="rXLingPapIndexedItem.iAffixProcess.d0e14877"></a>Whenever you create an affix process rule, be sure to fill in the morph type field and also put something in the form field.
 		 If the morph type field is empty, the rule may not work. The reason for putting something in the form field is so you will
 		 not just get &#8220;???&#8221; for the shape of the morpheme.
 	  </p>
+	  <h2 style=""><a name="sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected </a></h2>
+	  <p>This one is a bit tricky and not easy to explain.</p>
+	  <p>When you have phonological features defined and have fully and uniquely specified each phoneme, you may still run into some
+		 odd behaviors with natural classes.  Consider the following set of phonemes and features:
+	  </p>
+	  <div style="margin-left: 0.25in; margin-right: 0.25in">
+		 <table>
+			<tr>
+			   <td valign="top"><a name="xSalarPhonemes1">(210)</a></td>
+			   <td>
+				  <td style="padding-left: .25em">
+					 <table style="margin-left: .25in;" border="1">
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; ">&nbsp;</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">***</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">art</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">cont</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">cor</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">front</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">high</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">rnd</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">son</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">str</th>
+						   <th align="left" valign="top" style="padding-left:.2em; ">voice</th>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">-</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">a</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">b</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">lab</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">c</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">pal</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&ccedil;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">pal</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">ch</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">ret</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">d</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">e</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">f</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">lab</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">g</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&#287;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">h</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">uvu</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">i</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&#305;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">k</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">l</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">m</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">lab</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">n</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&ntilde;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">o</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&ouml;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">p</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">lab</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">q</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">uvu</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">r</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">s</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&#351;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">pal</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">sh</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">ret</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">t</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">u</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">&uuml;</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vowel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">v</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">lab</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">x</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">vel</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">y</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">pal</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">z</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">alv</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+						<tr style="">
+						   <th align="left" valign="top" style="padding-left:.2em; "><span style="color:blue; ">zh</span></th>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">ret</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">&nbsp;</td>
+						   <td align="center" valign="top" style="padding-left:.2em">-</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						   <td align="center" valign="top" style="padding-left:.2em">+</td>
+						</tr>
+					 </table>
+				  </td>
+			   </td>
+			</tr>
+		 </table>
+	  </div>
+	  <p>One would expect that while these are not fully specified, they are unique.  The problem came when a consonant natural class
+		 was defined as consisting of the following phonemes:
+	  </p>
+	  <div style="margin-left: 0.25in; margin-right: 0.25in">
+		 <table>
+			<tr>
+			   <td valign="top"><a name="xSalarC">(211)</a></td>
+			   <td>
+				  <table cellpadding="0pt" cellspacing="0pt">
+					 <tr>
+						<td><span style="color:blue; ">b,&nbsp;&nbsp;c,&nbsp;&nbsp;&ccedil;,&nbsp;&nbsp;ch,&nbsp;&nbsp;d,&nbsp;&nbsp;f,&nbsp;&nbsp;g,&nbsp;&nbsp;&#287;,&nbsp;&nbsp;h,&nbsp;&nbsp;k,&nbsp;&nbsp;l,&nbsp;&nbsp;m,&nbsp;&nbsp;n,&nbsp;&nbsp;&ntilde;,&nbsp;&nbsp;p,&nbsp;&nbsp;q,&nbsp;&nbsp;r,&nbsp;&nbsp;s,&nbsp;&nbsp;&#351;,&nbsp;&nbsp;sh,&nbsp;&nbsp;t,&nbsp;&nbsp;v,&nbsp;&nbsp;x,&nbsp;&nbsp;y,&nbsp;&nbsp;z,&nbsp;&nbsp;zh</span></td>
+					 </tr>
+				  </table>
+			   </td>
+			</tr>
+		 </table>
+	  </div>
+	  <p>and there was an affix process rule whose match portion ended in two consonants.  One naturally would expect that only those
+		 phonemes defined in the consonant natural class would be considered.  But this is not how the <span style="color:navy; ">experimental phonological rule-based parser</span> works during its synthesis process.  During synthesis, it uses only phonological features.  When it was attempting to see
+		 if a sequence like <span style="color:blue; ">madi</span> ended in two consonants, it said &#8220;yes, it does.&#8221;  How did this happen?  How could it think that the final <span style="color:blue; ">i</span> was a consonant?
+	  </p>
+	  <p>The answer is primarily related to the multi-valued nature of the art feature.  Since the various phonemes that are part of
+		 the consonant natural class (see <a href="#xSalarC">(211)</a>) have different values for the art feature, the <span style="color:navy; ">experimental phonological rule-based parser</span> has to ignore this feature when considering phonological features.  Looking at the feature chart in <a href="#xSalarPhonemes1">(210)</a> and ignoring the art column, notice that the /<span style="color:blue; ">i</span>/ phoneme and the /<span style="color:blue; ">l</span>/ phoneme have compatible phonological features.  Because of this, the <span style="color:navy; ">experimental phonological rule-based parser</span> said that the final <span style="color:blue; ">i</span> of the base <span style="color:blue; ">madi</span> matched the consonant natural class.
+	  </p>
+	  <p>The solution was to add a binary feature of &plusmn;consonantal.  This was + for all consonants and - for all vowels.</p>
+	  <p>The moral of this story, then, is to make sure that the phonological feature system is such that each natural class, when
+		 defined via features, contains just the phonemes you want.  Using binary features can certainly make this easier.
+	  </p>
 	  <h1 style=""><a name="sHermitCrabLimitations">B.3&nbsp;Known limitations</a></h1>
-	  <p><a name="rXLingPapIndexedItem.iPhonRuleLimitations.d0e14883"></a>There are several known limitations of the current implementation of the new <span style="color:navy; ">experimental phonological rule-based parser</span>.
+	  <p><a name="rXLingPapIndexedItem.iPhonRuleLimitations.d0e15797"></a>There are several known limitations of the current implementation of the new <span style="color:navy; ">experimental phonological rule-based parser</span>.
 	  </p>
 	  <h2 style=""><a name="sHCLimitNoTrace">B.3.1&nbsp;Seeing what steps the parser takes not fully complete</a></h2>
 	  <p>The default parser for <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> has a way for you to see what steps the parser took while parsing a word (see the <span style="font-family:Fixedsys; color:navy; ">Try&nbsp;a&nbsp;Word</span> tool). While this has been implemented for the new <span style="color:navy; ">experimental phonological rule-based parser</span>, it does not yet always give you an explanation for why a certain path failed. A later version of <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> will include this capability.
 	  </p>
-	  <p>In additon, the default parser for <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> has a way for you to limit which morphemes to try. This has not been implemented yet for the <span style="color:navy; ">experimental phonological rule-based parser</span>.
+	  <p>In addition, the default parser for <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> has a way for you to limit which morphemes to try. This has not been implemented yet for the <span style="color:navy; ">experimental phonological rule-based parser</span>.
 	  </p>
 	  <h2 style=""><a name="sHCLimitAffixesApplyOnlyOnce">B.3.2&nbsp;Affixes are tried only once per word</a></h2>
 	  <p>While the default <span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span> parser will try a given affix as many times as its form is found within a single word, the new <span style="color:navy; ">experimental phonological rule-based parser</span> tries a given form (or affix process) only once per word. This is normally not an issue since it is quite rare for an affix
@@ -13393,7 +13908,7 @@
 		 as a distinct lexical entry. You also, of course, have the option of just allowing the new parser to fail to parse such words.
 	  </p>
 	  <h2 style=""><a name="sHCLimitNoAdHocRules">B.3.3&nbsp;Natural classes defined by segments may or may not work as expected</a></h2>
-	  <p><a name="rXLingPapIndexedItem.iNaturalClass.d0e14930"></a>When you define a natural class by listing the segments (as opposed to using phonological features), the new <span style="color:navy; ">experimental phonological rule-based parser</span> may not treat this natural class exactly as you expect. If you do not have any phonological features defined, then the new
+	  <p><a name="rXLingPapIndexedItem.iNaturalClass.d0e15844"></a>When you define a natural class by listing the segments (as opposed to using phonological features), the new <span style="color:navy; ">experimental phonological rule-based parser</span> may not treat this natural class exactly as you expect. If you do not have any phonological features defined, then the new
 		 parser will treat the class as consisting solely of the segments listed in the class.
 	  </p>
 	  <p>If, on the other hand, you have defined phonological features, then the new <span style="color:navy; ">experimental phonological rule-based parser</span> converts all the segments listed in the natural class into their respective feature sets. It then takes the set intersection
@@ -13404,7 +13919,7 @@
 		 special phonological feature whose value was <span style="font-family:Fixedsys; color:black; ">+</span> for these four segments and <span style="font-family:Fixedsys; color:black; ">-</span> for all other segments.
 	  </p>
 	  <h2 style=""><a name="sHCLimitNoAllomorphyByFeatures">B.3.4&nbsp;Affix allomorphs conditioned by morpho-syntactic features not implemented yet</a></h2>
-	  <p><a name="rXLingPapIndexedItem.iAffixAlloFeats.d0e14965"></a><a name="rXLingPapIndexedItem.iInflFeatAllomorphy.d0e14966"></a><a name="rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e14967"></a>The kind of allomorphy described in section <a href="#sAffixAlloFeats">3.8</a> is currently not handled by the new <span style="color:navy; ">experimental phonological rule-based parser</span>. Recall that these are affix allomorphs conditioned by non-phonological features.
+	  <p><a name="rXLingPapIndexedItem.iAffixAlloFeats.d0e15879"></a><a name="rXLingPapIndexedItem.iInflFeatAllomorphy.d0e15880"></a><a name="rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e15881"></a>The kind of allomorphy described in section <a href="#sAffixAlloFeats">3.8</a> is currently not handled by the new <span style="color:navy; ">experimental phonological rule-based parser</span>. Recall that these are affix allomorphs conditioned by non-phonological features.
 	  </p>
 	  <h2 style=""><a name="sHCLimitBoundRoots">B.3.5&nbsp;Bare bound roots and bound stems will parse</a></h2>
 	  <p>If you mark a root or a stem as being bound, the <span style="color:navy; ">experimental phonological rule-based parser</span> will not insist that such a form have some kind of affixation. That is, a bare bound root or a bare bound stem will be allowed
@@ -14761,7 +15276,7 @@
 		 </p>
 	  </div>
 	  <hr>
-	  <a name="rXLingPapIndex.d0e15305">
+	  <a name="rXLingPapIndex.d0e16219">
 		 <p style=""><big><big><big><b><a name="">Language Index</a></b></big></big></big></p></a><div style="margin-left: 0.5in; margin-right: 0.5in">
 		 <a name="rXLingPapIndexTerm.iAtzingoPopoloca">Atzingo Popoloca&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAtzingoPopoloca.d0e4004">2.1.3.4.2</a>, <a href="#rXLingPapIndexedItem.iAtzingoPopoloca.d0e4011">2.1.3.4.2n</a><br><a name="rXLingPapIndexTerm.iAwngi">Awngi&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAwngi.d0e10949">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iAxinincaCampa">Axininca Campa&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAxinincaCampa.d0e8520">3.8</a>, <a href="#rXLingPapIndexedItem.iAxinincaCampa.d0e13806">B.1.2.2.1</a><br><a name="rXLingPapIndexTerm.iBahasaIndonesia">Bahasa Indonesia&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e7310">3.2.1</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e7495">3.2.1.1n</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e9460">4.3</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e9814">B.1.1.1.1</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e11206">B.1.2.1.4</a>-<a href="#rXLingPapIndexedItem.bIndonesianNasalAssimilation.d0e13795">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e14810">B.2.4</a>, <a href="#rXLingPapIndexedItem.iBahasaIndonesia.d0e14837">B.2.6</a><br><a name="rXLingPapIndexTerm.iCaquinte">Caquinte&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iCaquinte.d0e663">1.1.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e670">1.1.4n</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e759">1.1.5</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e960">1.1.9</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e1021">1.1.10</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e1865">2.1.2.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e7993">3.4</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e8051">3.5</a>, <a href="#rXLingPapIndexedItem.iCaquinte.d0e8130">3.6</a><br><a name="rXLingPapIndexTerm.iEnglish">English&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iEnglish.d0e460">1.1.2</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e3461">2.1.3.1</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e9127">3.11.1</a>, <a href="#rXLingPapIndexedItem.iEnglish.d0e9308">4.1.2</a><br><a name="rXLingPapIndexTerm.iHuallagaQuechua">Huallaga Quechua&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e534">1.1.2</a>, <a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e540">1.1.2n</a>, <a href="#rXLingPapIndexedItem.iHuallagaQuechua.d0e4351">2.1.4</a><br>Indonesian&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iBahasaIndonesia">Bahasa Indonesia</a>.<br>
 		 <a name="rXLingPapIndexTerm.iIsthmusZapotec">Isthmus Zapotec&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iIsthmusZapotec.d0e2437">2.1.2.6.1</a><br><a name="rXLingPapIndexTerm.iLatin">Latin&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iLatin.d0e2289">2.1.2.6</a><br><a name="rXLingPapIndexTerm.iMenya">Menya&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMenya.d0e8903">3.10</a><br><a name="rXLingPapIndexTerm.iOrizabaNahuatl">Orizaba Nahuatl&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e88">1.1.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e99">1.1.1n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e1253">2.1.2.1</a>-<a href="#rXLingPapIndexedItem.bOrizabaInflection.d0e1855">2.1.2.3</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4575">2.1.6</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4795">2.2.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e4802">2.2.1n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e5280">2.2.3.2</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e5287">2.2.3.2n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e6234">3.1</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e7196">3.1.4</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e7563">3.2.2</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e8257">3.7</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e8264">3.7n</a>, <a href="#rXLingPapIndexedItem.iOrizabaNahuatl.d0e10125">B.1.1.1.2</a><br>Popoloca&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iAtzingoPopoloca">Atzingo Popoloca</a>.<br>
@@ -14776,7 +15291,7 @@
 		 </div>
 	  </div>
 	  <hr>
-	  <a name="rXLingPapIndex.d0e15306">
+	  <a name="rXLingPapIndex.d0e16220">
 		 <p style=""><big><big><big><b><a name="">Subject Index</a></b></big></big></big></p></a><div style="margin-left: 0.5in; margin-right: 0.5in">
 		 <a name="rXLingPapIndexTerm.iAdhocConstraints">Ad hoc constraints&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocConstraints.d0e5985">2.4</a>, <a href="#rXLingPapIndexedItem.iAdhocConstraints.d0e9072">3.11</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iAdhocAllo">Allomorph-oriented&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocAllo.d0e9071">3.11</a>-<a href="#rXLingPapIndexedItem.bAllomorphAdhoc.d0e9251">3.11.2</a><br><a name="rXLingPapIndexTerm.iAdhocGroup">Grouping&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocGroup.d0e6069">2.4.2</a>, <a href="#rXLingPapIndexedItem.iAdhocGroup.d0e9229">3.11.2</a><br><a name="rXLingPapIndexTerm.iAdhocKeyAllo">Key Allomorph&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocKeyAllo.d0e9087">3.11.1</a><br><a name="rXLingPapIndexTerm.iAdhocKeyMorpheme">Key Morpheme&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocKeyMorpheme.d0e6000">2.4.1</a><br><a name="rXLingPapIndexTerm.iAdhocMorph">Morpheme-oriented&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocMorph.d0e5984">2.4</a>-<a href="#rXLingPapIndexedItem.bMorphemeAdhoc.d0e6220">2.4.2</a><br><a name="rXLingPapIndexTerm.iAdhocOtherAllomorphs">Other Allomorph(s)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocOtherAllomorphs.d0e9089">3.11.1</a><br><a name="rXLingPapIndexTerm.iAdhocOtherMorphemes">Other Morpheme(s)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAdhocOtherMorphemes.d0e6002">2.4.1</a><br></div><a name="rXLingPapIndexTerm.iAffixes">Affixes&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixes.d0e1199">2.1</a>-<a href="#rXLingPapIndexedItem.bAffixes.d0e4762">2.1.6</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
@@ -14786,7 +15301,7 @@
 			Inflectional Affix&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iInflectionalAffix">Inflectional Affix</a>.<br>
 			Interfixes&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iCompInterfix">Affixes in Middle of Compounds</a>.<br>
 			<a name="rXLingPapIndexTerm.iAffixNonproductive">Non-productive Affix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixNonproductive.d0e4740">2.1.6n</a>, <a href="#rXLingPapIndexedItem.iAffixNonproductive.d0e4745">2.1.6</a><br><a name="rXLingPapIndexTerm.iAffixProcess">Process&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixProcess.d0e9784">B.1.1</a>, <a href="#rXLingPapIndexedItem.iAffixProcess.d0e14877">B.2.7</a><br><a name="rXLingPapIndexTerm.iAffixUnclassified">Unclassified Affix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e1209">2.1</a>, <a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e1215">2.1.1</a>, <a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e1226">2.1.1n</a>, <a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e3437">2.1.2.9</a>, <a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e4335">2.1.3.7</a>, <a href="#rXLingPapIndexedItem.iAffixUnclassified.d0e4747">2.1.6</a><br><a name="rXLingPapIndexTerm.iAffixUnderSpecified">Underspecified&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixUnderSpecified.d0e3430">2.1.2.9</a>, <a href="#rXLingPapIndexedItem.iAffixUnderSpecified.d0e4328">2.1.3.7</a><br></div><a name="rXLingPapIndexTerm.iAllomorphy">Allomorphy&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAllomorphy.d0e2236">2.1.2.6</a>, <a href="#rXLingPapIndexedItem.iAllomorphy.d0e9263">4.1</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
-			<a name="rXLingPapIndexTerm.iAffixAlloFeats">Affix Allomorphy (conditioned by features)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixAlloFeats.d0e8510">3.8</a>, <a href="#rXLingPapIndexedItem.iAffixAlloFeats.d0e14965">B.3.4</a><br>Alternate Forms Field&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iAlternateForms">Alternate Forms Field</a>.<br>
+			<a name="rXLingPapIndexTerm.iAffixAlloFeats">Affix Allomorphy (conditioned by features)&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAffixAlloFeats.d0e8510">3.8</a>, <a href="#rXLingPapIndexedItem.iAffixAlloFeats.d0e15879">B.3.4</a><br>Alternate Forms Field&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iAlternateForms">Alternate Forms Field</a>.<br>
 			<a name="rXLingPapIndexTerm.iAlloEnvironments">Environments&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e6392">3.1.1</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e6772">3.1.3</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e7194">3.1.4</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e7818">3.3</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e9062">3.10</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e9530">4.3</a>, <a href="#rXLingPapIndexedItem.iAlloEnvironments.d0e9792">B.1.1n</a><br><a name="rXLingPapIndexTerm.iAlloFreeFluctuation">Free fluctuation&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAlloFreeFluctuation.d0e7291">3.1.4.1</a><br>Lexeme Form Field&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iLexemeForm">Lexeme Form Field</a>.<br>
 			Null Allomorphs&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iNullAllomorph">Null Allomorph</a>.<br>
 			<a name="rXLingPapIndexTerm.iAlloOrder">Ordering of Allomorphs&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAlloOrder.d0e9302">4.1.2</a><br>Stem Allomorphy (Stem Names)&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iStemNames">Stem Names</a>.<br>
@@ -14828,11 +15343,11 @@
 			<a name="rXLingPapIndexTerm.iInflectionClass">Inflection Class&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflectionClass.d0e2114">2.1.2.6</a>, <a href="#rXLingPapIndexedItem.iInflectionClass.d0e3380">2.1.2.8</a>, <a href="#rXLingPapIndexedItem.iInflectionClass.d0e3940">2.1.3.3</a>, <a href="#rXLingPapIndexedItem.iInflectionClass.d0e3979">2.1.3.4</a>-<a href="#rXLingPapIndexedItem.bInflectionClassInDerivation.d0e4105">2.1.3.4.2</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			   <a name="rXLingPapIndexTerm.iInflClassEnvironments">And Allomorph Environments&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflClassEnvironments.d0e2426">2.1.2.6</a>, <a href="#rXLingPapIndexedItem.iInflClassEnvironments.d0e3035">2.1.2.6.1</a>, <a href="#rXLingPapIndexedItem.iInflClassEnvironments.d0e7186">3.1.3</a><br><a name="rXLingPapIndexTerm.iInflClassDefault">Default Inflection Class&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflClassDefault.d0e2420">2.1.2.6</a><br><a name="rXLingPapIndexTerm.iInflClassSublcass">Subclass&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflClassSublcass.d0e2435">2.1.2.6.1</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 				  <a name="rXLingPapIndexTerm.iInflSubClassEnvironments">And Allomorph Environments&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflSubClassEnvironments.d0e3034">2.1.2.6.1</a><br></div><a name="rXLingPapIndexTerm.iInflClassVsInflFeature">Versus Inflection Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflClassVsInflFeature.d0e3378">2.1.2.8</a><br></div><a name="rXLingPapIndexTerm.iInflectionFeature">Inflection Feature&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflectionFeature.d0e3062">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflectionFeature.d0e3381">2.1.2.8</a>, <a href="#rXLingPapIndexedItem.iInflectionFeature.d0e4112">2.1.3.5</a>, <a href="#rXLingPapIndexedItem.iInflectionFeature.d0e8384">3.7</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
-			   <a name="rXLingPapIndexTerm.iInflFeatAgreement">Agreement Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e3220">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e3279">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e4117">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatAllomorphy">And Allomorphy&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e8254">3.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e8511">3.8</a>, <a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e14966">B.3.4</a><br><a name="rXLingPapIndexTerm.iInflFeatComplex">Complex Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatComplex.d0e3273">2.1.2.7</a><br><a name="rXLingPapIndexTerm.iInflFeatDefault">Default Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatDefault.d0e1543">2.1.2.2</a>, <a href="#rXLingPapIndexedItem.iInflFeatDefault.d0e1721">2.1.2.3n</a><br><a name="rXLingPapIndexTerm.iInflFeatCatalog">Feature Catalog&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatCatalog.d0e3343">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatCatalog.d0e4213">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatType">Feature Type&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatType.d0e3334">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatType.d0e3338">2.1.2.7n</a>, <a href="#rXLingPapIndexedItem.iInflFeatType.d0e4205">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatRuleOutParses">Using Features to Rule Out Incorrect Parses&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e3142">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e3284">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e8255">3.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e8512">3.8</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e14967">B.3.4</a><br><a name="rXLingPapIndexTerm.iInflFeatVsInflClass">Versus Inflection Class&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatVsInflClass.d0e3379">2.1.2.8</a><br></div><a name="rXLingPapIndexTerm.iInflectionalAffix">Inflectional Affix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflectionalAffix.d0e1201">2.1</a>, <b><a href="#rXLingPapIndexedItem.iInflectionalAffix.d0e1241">2.1.2</a>-<a href="#rXLingPapIndexedItem.bInflectionalAffix.d0e3441">2.1.2.9</a></b><br><div style="margin-left: 0.5in; margin-right: 0.5in">
+			   <a name="rXLingPapIndexTerm.iInflFeatAgreement">Agreement Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e3220">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e3279">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAgreement.d0e4117">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatAllomorphy">And Allomorphy&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e8254">3.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e8511">3.8</a>, <a href="#rXLingPapIndexedItem.iInflFeatAllomorphy.d0e15880">B.3.4</a><br><a name="rXLingPapIndexTerm.iInflFeatComplex">Complex Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatComplex.d0e3273">2.1.2.7</a><br><a name="rXLingPapIndexTerm.iInflFeatDefault">Default Features&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatDefault.d0e1543">2.1.2.2</a>, <a href="#rXLingPapIndexedItem.iInflFeatDefault.d0e1721">2.1.2.3n</a><br><a name="rXLingPapIndexTerm.iInflFeatCatalog">Feature Catalog&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatCatalog.d0e3343">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatCatalog.d0e4213">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatType">Feature Type&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatType.d0e3334">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatType.d0e3338">2.1.2.7n</a>, <a href="#rXLingPapIndexedItem.iInflFeatType.d0e4205">2.1.3.5</a><br><a name="rXLingPapIndexTerm.iInflFeatRuleOutParses">Using Features to Rule Out Incorrect Parses&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e3142">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e3284">2.1.2.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e8255">3.7</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e8512">3.8</a>, <a href="#rXLingPapIndexedItem.iInflFeatRuleOutParses.d0e15881">B.3.4</a><br><a name="rXLingPapIndexTerm.iInflFeatVsInflClass">Versus Inflection Class&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflFeatVsInflClass.d0e3379">2.1.2.8</a><br></div><a name="rXLingPapIndexTerm.iInflectionalAffix">Inflectional Affix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflectionalAffix.d0e1201">2.1</a>, <b><a href="#rXLingPapIndexedItem.iInflectionalAffix.d0e1241">2.1.2</a>-<a href="#rXLingPapIndexedItem.bInflectionalAffix.d0e3441">2.1.2.9</a></b><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			   <a name="rXLingPapIndexTerm.iInflAffixUnderspecified">Underspecified&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflAffixUnderspecified.d0e1222">2.1.1n</a>, <a href="#rXLingPapIndexedItem.iInflAffixUnderspecified.d0e3429">2.1.2.9</a><br></div><a name="rXLingPapIndexTerm.iInflectionalSlot">Inflectional Slot&nbsp;&nbsp;</a><b><a href="#rXLingPapIndexedItem.iInflectionalSlot.d0e1504">2.1.2.1</a>-<a href="#rXLingPapIndexedItem.bInflectionalSlot.d0e2107">2.1.2.5</a></b>, <a href="#rXLingPapIndexedItem.iInflectionalSlot.d0e8492">3.7n</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			   <a name="rXLingPapIndexTerm.iInflSlotOptional">Optionality&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInflSlotOptional.d0e1512">2.1.2.2</a><br></div><a name="rXLingPapIndexTerm.iInflectionalTemplate">Inflectional Template&nbsp;&nbsp;</a><b><a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e1428">2.1.2.1</a>-<a href="#rXLingPapIndexedItem.bInflectionalTemplate.d0e2108">2.1.2.5</a></b>, <a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e4411">2.1.4</a>, <a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e5421">2.2.3.2</a>, <a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e7927">3.3.2</a>, <a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e8483">3.7</a>, <a href="#rXLingPapIndexedItem.iInflectionalTemplate.d0e8490">3.7n</a><br>Versus Derivation&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iDerivationVsInflection">Versus Inflection</a>.<br>
 
-		 </div><a name="rXLingPapIndexTerm.iInterfixes">Interfixes&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInterfixes.d0e5442">2.2.4</a><br><a name="rXLingPapIndexTerm.iIrrInflForms">Irregularly inflected forms&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iIrrInflForms.d0e8824">3.9</a><br><a name="rXLingPapIndexTerm.iItemAndArrangement">Item and Arrangement&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iItemAndArrangement.d0e6339">3.1</a><br><a name="rXLingPapIndexTerm.iItemAndProcess">Item and Process&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iItemAndProcess.d0e6322">3.1</a>, <a href="#rXLingPapIndexedItem.iItemAndProcess.d0e9746">B.1</a><br><a name="rXLingPapIndexTerm.iLexemeForm">Lexeme Form Field&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iLexemeForm.d0e9366">4.1.2</a>, <a href="#rXLingPapIndexedItem.iLexemeForm.d0e9512">4.3</a>, <a href="#rXLingPapIndexedItem.iLexemeForm.d0e9788">B.1.1</a><br><a name="rXLingPapIndexTerm.iMetathesis">Metathesis&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMetathesis.d0e958">1.1.9</a>, <b><a href="#rXLingPapIndexedItem.iMetathesis.d0e8047">3.5</a></b>, <a href="#rXLingPapIndexedItem.iMetathesis.d0e13919">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iMorphemeTypes">Morpheme Types&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphemeTypes.d0e9374">4.2</a><br><a name="rXLingPapIndexTerm.iMorphologicalParser">Morphological Parser&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e1114">1.2</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e5987">2.4</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9074">3.11</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9271">4.1.1</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9380">4.2</a><br><a name="rXLingPapIndexTerm.iMorphophonemics">Morphophonemics&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphophonemics.d0e37">1</a>, <a href="#rXLingPapIndexedItem.iMorphophonemics.d0e1159">1.2</a>, <b><a href="#rXLingPapIndexedItem.iMorphophonemics.d0e6227">3</a>-<a href="#rXLingPapIndexedItem.bMorphophonemics.d0e9252">3.11.2</a></b><br><a name="rXLingPapIndexTerm.iMGA">Morphosyntactic Glossing Assistant&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMGA.d0e1718">2.1.2.3n</a>, <a href="#rXLingPapIndexedItem.iMGA.d0e3191">2.1.2.7</a><br><a name="rXLingPapIndexTerm.iMorphotactics">Morphotactics&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphotactics.d0e35">1</a>, <a href="#rXLingPapIndexedItem.iMorphotactics.d0e1157">1.2</a>, <b><a href="#rXLingPapIndexedItem.iMorphotactics.d0e1169">2</a>-<a href="#rXLingPapIndexedItem.bMorphotactics.d0e6221">2.4.2</a></b><br><a name="rXLingPapIndexTerm.iNaturalClass">Natural Class&nbsp;&nbsp;</a><b><a href="#rXLingPapIndexedItem.iNaturalClass.d0e6745">3.1.2</a></b>, <a href="#rXLingPapIndexedItem.iNaturalClass.d0e14930">B.3.3</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
+		 </div><a name="rXLingPapIndexTerm.iInterfixes">Interfixes&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iInterfixes.d0e5442">2.2.4</a><br><a name="rXLingPapIndexTerm.iIrrInflForms">Irregularly inflected forms&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iIrrInflForms.d0e8824">3.9</a><br><a name="rXLingPapIndexTerm.iItemAndArrangement">Item and Arrangement&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iItemAndArrangement.d0e6339">3.1</a><br><a name="rXLingPapIndexTerm.iItemAndProcess">Item and Process&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iItemAndProcess.d0e6322">3.1</a>, <a href="#rXLingPapIndexedItem.iItemAndProcess.d0e9746">B.1</a><br><a name="rXLingPapIndexTerm.iLexemeForm">Lexeme Form Field&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iLexemeForm.d0e9366">4.1.2</a>, <a href="#rXLingPapIndexedItem.iLexemeForm.d0e9512">4.3</a>, <a href="#rXLingPapIndexedItem.iLexemeForm.d0e9788">B.1.1</a><br><a name="rXLingPapIndexTerm.iMetathesis">Metathesis&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMetathesis.d0e958">1.1.9</a>, <b><a href="#rXLingPapIndexedItem.iMetathesis.d0e8047">3.5</a></b>, <a href="#rXLingPapIndexedItem.iMetathesis.d0e13919">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iMorphemeTypes">Morpheme Types&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphemeTypes.d0e9374">4.2</a><br><a name="rXLingPapIndexTerm.iMorphologicalParser">Morphological Parser&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e1114">1.2</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e5987">2.4</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9074">3.11</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9271">4.1.1</a>, <a href="#rXLingPapIndexedItem.iMorphologicalParser.d0e9380">4.2</a><br><a name="rXLingPapIndexTerm.iMorphophonemics">Morphophonemics&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphophonemics.d0e37">1</a>, <a href="#rXLingPapIndexedItem.iMorphophonemics.d0e1159">1.2</a>, <b><a href="#rXLingPapIndexedItem.iMorphophonemics.d0e6227">3</a>-<a href="#rXLingPapIndexedItem.bMorphophonemics.d0e9252">3.11.2</a></b><br><a name="rXLingPapIndexTerm.iMGA">Morphosyntactic Glossing Assistant&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMGA.d0e1718">2.1.2.3n</a>, <a href="#rXLingPapIndexedItem.iMGA.d0e3191">2.1.2.7</a><br><a name="rXLingPapIndexTerm.iMorphotactics">Morphotactics&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iMorphotactics.d0e35">1</a>, <a href="#rXLingPapIndexedItem.iMorphotactics.d0e1157">1.2</a>, <b><a href="#rXLingPapIndexedItem.iMorphotactics.d0e1169">2</a>-<a href="#rXLingPapIndexedItem.bMorphotactics.d0e6221">2.4.2</a></b><br><a name="rXLingPapIndexTerm.iNaturalClass">Natural Class&nbsp;&nbsp;</a><b><a href="#rXLingPapIndexedItem.iNaturalClass.d0e6745">3.1.2</a></b>, <a href="#rXLingPapIndexedItem.iNaturalClass.d0e15844">B.3.3</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iNatClassAbbreviations">Abbreviations&nbsp;&nbsp;</a><b><a href="#rXLingPapIndexedItem.iNatClassAbbreviations.d0e6762">3.1.2</a></b>, <a href="#rXLingPapIndexedItem.iNatClassAbbreviations.d0e6807">3.1.3</a><br></div>Non-productive Affix&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iAffixNonproductive">Non-productive Affix</a>.<br>
 		 <a name="rXLingPapIndexTerm.iNounClass">Noun Class&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iNounClass.d0e3277">2.1.2.7</a>.  See also <a href="#rXLingPapIndexTerm.iInflectionFeature">Inflection Feature</a>.<br><a name="rXLingPapIndexTerm.iNullAllomorph">Null Allomorph&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iNullAllomorph.d0e1019">1.1.10</a>, <a href="#rXLingPapIndexedItem.iNullAllomorph.d0e1528">2.1.2.2</a>, <a href="#rXLingPapIndexedItem.iNullAllomorph.d0e1541">2.1.2.2</a>, <a href="#rXLingPapIndexedItem.iNullAllomorph.d0e8126">3.6</a>, <b><a href="#rXLingPapIndexedItem.iNullAllomorph.d0e9269">4.1.1</a></b><br><a name="rXLingPapIndexTerm.iOccamsRazor">Occam's Razor&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iOccamsRazor.d0e1532">2.1.2.2</a><br><a name="rXLingPapIndexTerm.iAllomorphOrder">Order of Allomorphs in an Entry&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iAllomorphOrder.d0e7193">3.1.4</a>.  See also <a href="#rXLingPapIndexTerm.iAlloOrder">Ordering of Allomorphs</a>.<br><a name="rXLingPapIndexTerm.iParser">Parser&nbsp;&nbsp;</a>See <a href="#rXLingPapIndexTerm.iMorphologicalParser">Morphological Parser</a>.<br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iHermitCrab"><a name="gHermitCrabInIndex"></a>New Experimental Parser&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iHermitCrab.d0e6377">3.1</a><br></div>Part of Speech&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iCategory">Category</a>.<br>
@@ -14840,7 +15355,7 @@
 			Classes&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iNaturalClass">Natural Class</a>.<br>
 			<a name="rXLingPapIndexTerm.iPhonemeRepresentation">Representation&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonemeRepresentation.d0e6394">3.1.1</a><br></div><a name="rXLingPapIndexTerm.iPhonologicalRules">Phonological Rules&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonologicalRules.d0e52">1</a>, <a href="#rXLingPapIndexedItem.iPhonologicalRules.d0e9684">A.</a>, <a href="#rXLingPapIndexedItem.iPhonologicalRules.d0e9765">B.1</a>, <a href="#rXLingPapIndexedItem.iPhonologicalRules.d0e10587">B.1.2</a>-<a href="#rXLingPapIndexedItem.bPhonRules.d0e14758">B.1.2.3</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iPhonRuleAlphaVariables">Alpha Variables&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleAlphaVariables.d0e11316">B.1.2.1.4</a>, <a href="#rXLingPapIndexedItem.iPhonRuleAlphaVariables.d0e11396">B.1.2.1.4n</a><br><a name="rXLingPapIndexTerm.iPhonRuleArchiphoneme">Archiphonemes and&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleArchiphoneme.d0e14835">B.2.6</a><br><a name="rXLingPapIndexTerm.iPhonRuleAssimilation">Assimilation&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleAssimilation.d0e11315">B.1.2.1.4</a><br><a name="rXLingPapIndexTerm.iPhonRuleConstrain">Constraining&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrain.d0e13800">B.1.2.2</a>-<a href="#rXLingPapIndexedItem.bPhonRuleConstrain.d0e13913">B.1.2.2.2</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
-			   <a name="rXLingPapIndexTerm.iPhonRuleConstrainCategory">Constrain by Category&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainCategory.d0e13807">B.1.2.2.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleConstrainExceptionFeature">Constrain by Exception &#8220;Feature&#8221;&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13707">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13909">B.1.2.2.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleConstrainProperty">Constrain by Property&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainProperty.d0e13904">B.1.2.2.2</a><br></div><a name="rXLingPapIndexTerm.iPhonRuleDeletion">Deletion Rule&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleDeletion.d0e11164">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleExamples">Examples&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e10786">B.1.2.1.1</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e10894">B.1.2.1.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11049">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11177">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11314">B.1.2.1.4</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e13369">B.1.2.1.4.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e14038">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleExceptionFeatures">Exception &#8220;Features&#8221; in&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13709">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13785">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13793">B.1.2.1.4.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleFS">Feature Structures in&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleFS.d0e14806">B.2.4</a><br><a name="rXLingPapIndexTerm.iPhonRuleGenerative">Generative approach&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleGenerative.d0e9761">B.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleIteration">Iteration in Rule&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e11147">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e13613">B.1.2.1.4.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e13630">B.1.2.1.4.2n</a><br><a name="rXLingPapIndexTerm.iPhonRuleLimitations">Limitations&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleLimitations.d0e14883">B.3</a><br><a name="rXLingPapIndexTerm.iPhonRulePhonemeFeatureMatrix">Phoneme-Feature Matrix Examples&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRulePhonemeFeatureMatrix.d0e11930">B.1.2.1.4.1</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemeFeatureMatrix.d0e14201">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iPhonRulePhonemes">Phonemes and&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14774">B.2.1</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14790">B.2.2</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14798">B.2.3</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14829">B.2.5</a><br><a name="rXLingPapIndexTerm.iPhonRuleRuleFormula">Rule Formula&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleRuleFormula.d0e10594">B.1.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleRuleOrdering">Rule Ordering&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e10922">B.1.2.1.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e11200">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e13137">B.1.2.1.4.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleTips">Tips in using&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTips.d0e14765">B.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleTone">Tone&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTone.d0e10950">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleTryParser">Trying the <span style="color:navy; ">experimental phonological rule-based parser</span>&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTryParser.d0e69">1</a><br></div><a name="rXLingPapIndexTerm.iPhrase">Phrase&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhrase.d0e9409">4.2</a>, <a href="#rXLingPapIndexedItem.iPhrase.d0e9442">4.2</a><br><a name="rXLingPapIndexTerm.iPrefix">Prefix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPrefix.d0e9412">4.2</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
+			   <a name="rXLingPapIndexTerm.iPhonRuleConstrainCategory">Constrain by Category&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainCategory.d0e13807">B.1.2.2.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleConstrainExceptionFeature">Constrain by Exception &#8220;Feature&#8221;&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13707">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleConstrainExceptionFeature.d0e13909">B.1.2.2.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleConstrainProperty">Constrain by Property&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleConstrainProperty.d0e13904">B.1.2.2.2</a><br></div><a name="rXLingPapIndexTerm.iPhonRuleDeletion">Deletion Rule&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleDeletion.d0e11164">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleExamples">Examples&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e10786">B.1.2.1.1</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e10894">B.1.2.1.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11049">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11177">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e11314">B.1.2.1.4</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e13369">B.1.2.1.4.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExamples.d0e14038">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleExceptionFeatures">Exception &#8220;Features&#8221; in&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13709">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13785">B.1.2.1.4.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleExceptionFeatures.d0e13793">B.1.2.1.4.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleFS">Feature Structures in&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleFS.d0e14806">B.2.4</a><br><a name="rXLingPapIndexTerm.iPhonRuleGenerative">Generative approach&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleGenerative.d0e9761">B.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleIteration">Iteration in Rule&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e11147">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e13613">B.1.2.1.4.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleIteration.d0e13630">B.1.2.1.4.2n</a><br><a name="rXLingPapIndexTerm.iPhonRuleLimitations">Limitations&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleLimitations.d0e15797">B.3</a><br><a name="rXLingPapIndexTerm.iPhonRulePhonemeFeatureMatrix">Phoneme-Feature Matrix Examples&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRulePhonemeFeatureMatrix.d0e11930">B.1.2.1.4.1</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemeFeatureMatrix.d0e14201">B.1.2.3</a><br><a name="rXLingPapIndexTerm.iPhonRulePhonemes">Phonemes and&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14774">B.2.1</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14790">B.2.2</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14798">B.2.3</a>, <a href="#rXLingPapIndexedItem.iPhonRulePhonemes.d0e14829">B.2.5</a><br><a name="rXLingPapIndexTerm.iPhonRuleRuleFormula">Rule Formula&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleRuleFormula.d0e10594">B.1.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleRuleOrdering">Rule Ordering&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e10922">B.1.2.1.2</a>, <a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e11200">B.1.2.1.3</a>, <a href="#rXLingPapIndexedItem.iPhonRuleRuleOrdering.d0e13137">B.1.2.1.4.1</a><br><a name="rXLingPapIndexTerm.iPhonRuleTips">Tips in using&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTips.d0e14765">B.2</a><br><a name="rXLingPapIndexTerm.iPhonRuleTone">Tone&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTone.d0e10950">B.1.2.1.3</a><br><a name="rXLingPapIndexTerm.iPhonRuleTryParser">Trying the <span style="color:navy; ">experimental phonological rule-based parser</span>&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhonRuleTryParser.d0e69">1</a><br></div><a name="rXLingPapIndexTerm.iPhrase">Phrase&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPhrase.d0e9409">4.2</a>, <a href="#rXLingPapIndexedItem.iPhrase.d0e9442">4.2</a><br><a name="rXLingPapIndexTerm.iPrefix">Prefix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPrefix.d0e9412">4.2</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iPrefixInterfix">Prefixing Interfix&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPrefixInterfix.d0e9415">4.2</a>.  See also <a href="#rXLingPapIndexTerm.iInterfixes">Interfixes</a>.<br></div>Proclitic&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iClitic">Clitic</a>.<br>
 		 <a name="rXLingPapIndexTerm.iPronominalHierarchy">Pronominal Hierarchy&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iPronominalHierarchy.d0e6082">2.4.2</a><br><a name="rXLingPapIndexTerm.iReduplication">Reduplication&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iReduplication.d0e833">1.1.7</a>, <b><a href="#rXLingPapIndexedItem.iReduplication.d0e7302">3.2</a>-<a href="#rXLingPapIndexedItem.bReduplication.d0e7751">3.2.2.1</a></b>, <a href="#rXLingPapIndexedItem.iReduplication.d0e9804">B.1.1.1</a><br><div style="margin-left: 0.5in; margin-right: 0.5in">
 			<a name="rXLingPapIndexTerm.iRedupFull">Full Reduplication&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iRedupFull.d0e7308">3.2.1</a>-<a href="#rXLingPapIndexedItem.bFullReduplication.d0e7487">3.2.1.1</a>, <a href="#rXLingPapIndexedItem.iRedupFull.d0e9815">B.1.1.1.1</a>, <a href="#rXLingPapIndexedItem.iRedupFull.d0e13159">B.1.2.1.4.2</a><br><a name="rXLingPapIndexTerm.iRedupPartial">Partial Reduplication&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iRedupPartial.d0e7457">3.2.1.1</a>, <b><a href="#rXLingPapIndexedItem.iRedupPartial.d0e7530">3.2.2</a>-<a href="#rXLingPapIndexedItem.bPartialReduplication.d0e7750">3.2.2.1</a></b>, <a href="#rXLingPapIndexedItem.iRedupPartial.d0e9990">B.1.1.1.2</a><br></div><a name="rXLingPapIndexTerm.iRoot">Root&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iRoot.d0e9421">4.2</a><br><a name="rXLingPapIndexTerm.iRootAndPatternMorphology">Root and Pattern Morphology&nbsp;&nbsp;</a><a href="#rXLingPapIndexedItem.iRootAndPatternMorphology.d0e903">1.1.8</a>, <b><a href="#rXLingPapIndexedItem.iRootAndPatternMorphology.d0e7866">3.3.2</a></b>, <a href="#rXLingPapIndexedItem.iRootAndPatternMorphology.d0e10400">B.1.1.2.1</a><br>Root Variant&nbsp;&nbsp;See <a href="#rXLingPapIndexTerm.iStemNames">Stem Names</a>.<br>
