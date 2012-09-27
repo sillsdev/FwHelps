@@ -6,7 +6,7 @@
 	  <title>A Conceptual Introduction to Morphological Parsingfor Stage 1 of theFieldWorks Language Explorer</title><style type="text/css">.interblock { display: -moz-inline-box; display:inline-block; vertical-align: top; } </style></head>
    <body>
 	  <center><b><big><big><big>A Conceptual Introduction to Morphological Parsing<br>for Stage 1 of the<br><span style="font-family:Courier New; font-size:95%; color:navy; ">FieldWorks Language Explorer</span></big></big></big></b></center>
-	  <center><i>H. Andrew Black<span style="font-size:65%; vertical-align:super">[<a href="#nJonathanCoombs">*</a>]</span></i></center><br><center><small>25-September-2012</small></center>
+	  <center><i>H. Andrew Black<span style="font-size:65%; vertical-align:super">[<a href="#nJonathanCoombs">*</a>]</span></i></center><br><center><small>27-September-2012</small></center>
 	  <hr>
 	  <div>
 		 <center><big><big><b>Contents</b></big></big></center>
@@ -197,7 +197,7 @@
 					 <li><a href="#sHCTipsPhonemeInRule">B.2.5&nbsp;Using a Phoneme in a Rule is More Efficient</a></li>
 					 <li><a href="#sHCTipsCase">B.2.6&nbsp;Avoid Using Archiphonemes that are Uppercase Equivalents of a Character in Your Orthography</a></li>
 					 <li><a href="#sHCTipsAffixProcess">B.2.7&nbsp;Make Sure Every Affix Process Rule is Complete</a></li>
-					 <li><a href="#sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected </a></li>
+					 <li><a href="#sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected</a></li>
 				  </ul>
 				  <li><a href="#sHermitCrabLimitations">B.3&nbsp;Known limitations</a></li>
 				  <ul>
@@ -4111,7 +4111,7 @@
 								 <td>
 									<table cellpadding="0pt" cellspacing="0pt">
 									   <tr>
-										  <td style="color:blue; padding-left: .25em">n&iacute;ncaon</td>
+										  <td style="color:blue; padding-left: .25em">n&iacute;nkaon</td>
 									   </tr>
 									   <tr>
 										  <td style="color:blue; padding-left: .25em">0-n&iacute;nkaon</td>
@@ -4136,7 +4136,7 @@
 								 <td>
 									<table cellpadding="0pt" cellspacing="0pt">
 									   <tr>
-										  <td style="color:blue; padding-left: .25em">n&iacute;ncaconhen</td>
+										  <td style="color:blue; padding-left: .25em">n&iacute;nkakonhen</td>
 									   </tr>
 									   <tr>
 										  <td style="color:blue; padding-left: .25em">0-n&iacute;nkakon-hen</td>
@@ -13378,10 +13378,10 @@
 		 If the morph type field is empty, the rule may not work. The reason for putting something in the form field is so you will
 		 not just get &#8220;???&#8221; for the shape of the morpheme.
 	  </p>
-	  <h2 style=""><a name="sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected </a></h2>
+	  <h2 style=""><a name="sHCTipsNaturalClasses">B.2.8&nbsp;Natural Classes Defined by Phonemes May Not Work as Expected</a></h2>
 	  <p>This one is a bit tricky and not easy to explain.</p>
 	  <p>When you have phonological features defined and have fully and uniquely specified each phoneme, you may still run into some
-		 odd behaviors with natural classes.  Consider the following set of phonemes and features:
+		 odd behaviors with natural classes. Consider the following set of phonemes and features:
 	  </p>
 	  <div style="margin-left: 0.25in; margin-right: 0.25in">
 		 <table>
@@ -13864,7 +13864,7 @@
 			</tr>
 		 </table>
 	  </div>
-	  <p>One would expect that while these are not fully specified, they are unique.  The problem came when a consonant natural class
+	  <p>One would expect that while these are not fully specified, they are unique. The problem came when a consonant natural class
 		 was defined as consisting of the following phonemes:
 	  </p>
 	  <div style="margin-left: 0.25in; margin-right: 0.25in">
@@ -13881,16 +13881,16 @@
 			</tr>
 		 </table>
 	  </div>
-	  <p>and there was an affix process rule whose match portion ended in two consonants.  One naturally would expect that only those
-		 phonemes defined in the consonant natural class would be considered.  But this is not how the <span style="color:navy; ">experimental phonological rule-based parser</span> works during its synthesis process.  During synthesis, it uses only phonological features.  When it was attempting to see
-		 if a sequence like <span style="color:blue; ">madi</span> ended in two consonants, it said &#8220;yes, it does.&#8221;  How did this happen?  How could it think that the final <span style="color:blue; ">i</span> was a consonant?
+	  <p>and there was an affix process rule whose match portion ended in two consonants. One naturally would expect that only those
+		 phonemes defined in the consonant natural class would be considered. But this is not how the <span style="color:navy; ">experimental phonological rule-based parser</span> works during its synthesis process. During synthesis, it uses only phonological features. When it was attempting to see if
+		 a sequence like <span style="color:blue; ">madi</span> ended in two consonants, it said &#8220;yes, it does.&#8221; How did this happen? How could it think that the final <span style="color:blue; ">i</span> was a consonant?
 	  </p>
-	  <p>The answer is primarily related to the multi-valued nature of the art feature.  Since the various phonemes that are part of
-		 the consonant natural class (see <a href="#xSalarC">(211)</a>) have different values for the art feature, the <span style="color:navy; ">experimental phonological rule-based parser</span> has to ignore this feature when considering phonological features.  Looking at the feature chart in <a href="#xSalarPhonemes1">(210)</a> and ignoring the art column, notice that the /<span style="color:blue; ">i</span>/ phoneme and the /<span style="color:blue; ">l</span>/ phoneme have compatible phonological features.  Because of this, the <span style="color:navy; ">experimental phonological rule-based parser</span> said that the final <span style="color:blue; ">i</span> of the base <span style="color:blue; ">madi</span> matched the consonant natural class.
+	  <p>The answer is primarily related to the multi-valued nature of the art feature. Since the various phonemes that are part of
+		 the consonant natural class (see <a href="#xSalarC">(211)</a>) have different values for the art feature, the <span style="color:navy; ">experimental phonological rule-based parser</span> has to ignore this feature when considering phonological features. Looking at the feature chart in <a href="#xSalarPhonemes1">(210)</a> and ignoring the art column, notice that the /<span style="color:blue; ">i</span>/ phoneme and the /<span style="color:blue; ">l</span>/ phoneme have compatible phonological features. Because of this, the <span style="color:navy; ">experimental phonological rule-based parser</span> said that the final <span style="color:blue; ">i</span> of the base <span style="color:blue; ">madi</span> matched the consonant natural class.
 	  </p>
-	  <p>The solution was to add a binary feature of &plusmn;consonantal.  This was + for all consonants and - for all vowels.</p>
+	  <p>The solution was to add a binary feature of &plusmn;consonantal. This was + for all consonants and - for all vowels.</p>
 	  <p>The moral of this story, then, is to make sure that the phonological feature system is such that each natural class, when
-		 defined via features, contains just the phonemes you want.  Using binary features can certainly make this easier.
+		 defined via features, contains just the phonemes you want. Using binary features can certainly make this easier.
 	  </p>
 	  <h1 style=""><a name="sHermitCrabLimitations">B.3&nbsp;Known limitations</a></h1>
 	  <p><a name="rXLingPapIndexedItem.iPhonRuleLimitations.d0e15797"></a>There are several known limitations of the current implementation of the new <span style="color:navy; ">experimental phonological rule-based parser</span>.
