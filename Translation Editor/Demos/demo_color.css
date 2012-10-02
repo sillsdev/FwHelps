@@ -1,0 +1,193 @@
+/* demo_color.css 2011-03-10 */
+/* Style sheet for software demonstrations. A demonstration shows the procedure to perform a task. */
+/* This is a blue color palette, which is compatible with the SIL Web site. */
+/* The color scheme might vary for different demo projects. */
+/* Other software demonstration style sheets import this style sheet. */
+
+/* To prevent software demonstration styles from affecting navigation and branding styles for Web sites, */
+/* the scope of the style rules for content elements is div#main instead of body. */
+
+/* If you create or modify color palettes, we recommend that you match the hue (H) of closely related colors. */
+/* To convert between Hexadecimal RGB, Decimal RGB, and HSV, we recommend the Change Foreground Color */
+/* and Change Background Color dialog boxes of the GIMP program, see http://www.gimp.org/ */
+/* For information about the HSL and HSV color models, see http://en.wikipedia.org/wiki/HSL_and_HSV */
+
+/* COLOR OF DEMO PAGES ====================================================== */
+/* In visual, audiovisual, and audio demo pages, the main div element has a class="demo" attribute. */
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/*     Hex      Decimal      HSV-model       HSL-model   Name in comments, followed by external dependencies     */
+/*   R G B    R   G   B    H    S    V     H    S    L                                                           */
+/* #000000    0   0   0    0°   0%   0%    0°   0%   0%  demo-information-color = black                          */
+/* #ffffff  255 255 255    0°   0% 100%    0°   0% 100%  demo-navigation-action-color = white                    */
+/* #ffffff  255 255 255    0°   0% 100%    0°   0% 100%  demo-action-border-color = white                        */
+/*                                                       Used in the action image files.                         */
+/* #cce5ff  204 229 255  210°  20% 100%  210° 100%  90%  demo-information-background-color (light tint)          */
+/*                                                       Used in the navigation image files.                     */
+/* #6699cc  102 153 204  210°  50%  80%  210°  50%  60%  demo-navigation-action-background-color (medium value)  */
+/*                                                       Matches the top banner of the SIL Web site.             */
+/*                                                       Used in the navigation and action image files.          */
+/* #336699   51 102 153  210°  67%  60%  210°  50%  40%  demo-dynamic-navigation-background-color (dark shade)   */
+/*                                                       Matches the SIL logo and side bar of the SIL Web site.  */
+/* ------------------------------------------------------------------------------------------------------------- */
+
+/* The explanation area, caption area, and information boxes have the same colors */
+/* because they contain instructional content that learners read for understanding. */
+div#main.demo div.demo-explanation,
+div#main.demo div.demo-caption,
+div#main.demo div.demo-information
+{
+color: #000000; /* demo-information-color */
+background-color: #cce5ff; /* demo-information-background-color */
+}
+
+/* Navigation hyperlinks and action callouts have the same colors */
+/* because they both label the part of a page that learners click. */
+
+div#main.demo div.demo-navigation a,
+div#main.demo div.demo-action p
+{
+color: #ffffff; /* demo-navigation-action-color */
+}
+
+div#main.demo div.demo-navigation,
+div#main.demo div.demo-action p /* The paragraph, not the div that contains it. */
+{
+background-color: #6699cc; /* demo-navigation-action-background-color */
+}
+/* The scope of the background color depends on the transparency of the background images. */
+/* For information about specifying equivalent colors for background images, */
+/* see pages 129-136 of Bulletproof Web Design, First Edition. */
+/* Full transparency in 8-bit PNG files works even in Internet Explorer 6 and earlier. */
+/* If you must modify these image files, do not save them as 24-bit or 32-bit PNG. */
+
+/* The slide numbers and label text appear as if they show through a stencil cut in the navigation area, */
+/* because their text color is the same as the background color of the explanation area. */
+div#main.demo div.demo-navigation span
+{
+color: #cce5ff; /* demo-information-background-color */
+}
+
+/* To make the navigation hyperlink appear as a button, */
+/* the background-color changes in the following dynamic states. */
+div#main.demo div.demo-navigation a:active,
+div#main.demo div.demo-navigation a:focus,
+div#main.demo div.demo-navigation a:hover
+{
+background-color: #336699; /* demo-dynamic-navigation-background-color */
+}
+
+/* Borders for the two edges opposite the pointer, assuming that actions consist of only one paragraph. */
+div#main div.demo-action p
+{
+border-color: #ffffff; /* demo-action-border-color */
+}
+
+/* COLOR OF AUXILIARY PAGES ================================================= */
+/* In the index.html file, the main div element has a class="demo-auxiliary demo-index" attribute. */
+/* In other auxiliary pages, the main div element has a class="demo-auxiliary" attribute. */
+
+/* ------------------------------------------------------------------------------------------------------------- */
+/*     Hex      Decimal      HSV-model       HSL-model   Name in comments, followed by external dependencies     */
+/*   R G B    R   G   B    H    S    V     H    S    L                                                           */
+/* #333333   51  51  51    0°   0%  20%    0°   0%  20%  auxiliary-text-color                                    */
+/* #990000  153   0   0    0° 100%  60%    0° 100%  30%  auxiliary-main-heading-color                            */
+/* #cce5ff  204 229 255  210°  20% 100%  210° 100%  90%  demo-information-background-color (light tint)          */
+/*                                                       The top border of auxiliary pages has the same color    */
+/*                                                       as the explanation area of demo pages.                  */
+/* #336699   51 102 153  210°  67%  60%  210°  50%  40%  auxiliary-unvisited-hyperlink-color                     */
+/* #6600cc  102   0 204  270° 100%  80%  270° 100%  40%  auxiliary-visited-hyperlink-color                       */
+/* #3399cc   51 153 204  200°  75%  80%  200°  60%  50%  auxiliary-dynamic-hyperlink-color                       */
+/* #cc3333  204  51  51    0°  75%  80%    0°  60%  50%  auxiliary-active-hyperlink-color                        */
+/* #99ffdd  153 255 221  160°  40% 100%  160° 100%  80%  auxiliary-image-hyperlink-color                         */
+/*                                                       Used in audio_demo.png and audiovisual_demo.png.        */
+/* ------------------------------------------------------------------------------------------------------------- */
+
+div#main.demo-auxiliary
+{
+color: #333333; /* auxiliary-text-color */
+border-top-color: #cce5ff; /* demo-information-background-color */
+/* Auxiliary pages have a top border: */
+/* • To relate to the color scheme of demo pages. */
+/* • To indicate the width of the content area. */
+/* • To align with any right-aligned images and the footer of pages on the SIL Web site. */
+}
+
+/* Headings */
+
+div#main.demo-auxiliary h1, /* Heading 1 corresponds to other pages on the SIL Web site. */
+div#main.demo-auxiliary h2 /* Heading 2 is not used in auxiliary demo pages. */
+{
+color: #990000; /* auxiliary-main-heading-color */
+}
+
+div#main.demo-auxiliary h3, /* Heading 3 */
+div#main.demo-auxiliary h4 /* Heading 4 */
+{
+color: #333333; /* auxiliary-text-color overrides the lighter color in other pages on the SIL Web site. */
+/* For information about color in headings, see page 183 in The Zen of CSS Design. */
+}
+
+/* Hyperlinks */
+
+/* In the index page, hyperlinks to audiovisual or audio demos might appear as images instead of text. */
+/* The background color of those images is the same as the color of hyperlink text in the same state. */
+/* The audiovisual_demo.png and audio_demo.png files have transparent parts to show background color. */
+/* Full transparency in 8-bit PNG files works even in Internet Explorer 6 and earlier. */
+/* If you modify these image files, do not save them as 24-bit or 32-bit PNG. */
+
+div#main.demo-auxiliary a:link
+{
+color: #336699; /* auxiliary-unvisited-hyperlink-color */
+}
+
+/* The following selectors work even in Internet Explorer 6 and earlier. */
+/* The first selector assumes that when the images occur as supporting information */
+/* in index.html, Audiovisual_demos.html, and Audio_demos.html, they must occur in a span. */
+div#main.demo-auxiliary span.UserInterface img,
+div#main.demo-index table a:link img
+{
+color: #99ffdd; /* auxiliary-image-hyperlink-color for alternate text matches the color of the image. */
+background-color: #336699; /* auxiliary-unvisited-hyperlink-color */
+}
+
+/* The following selectors work in Internet Explorer 7 and later. */
+div#main.demo-auxiliary img[src="audiovisual_demo.png"],
+div#main.demo-auxiliary img[src="audio_demo.png"]
+{
+color: #99ffdd; /* auxiliary-image-hyperlink-color for alternate text matches the color of the image. */
+background-color: #336699; /* auxiliary-unvisited-hyperlink-color */
+}
+
+div#main.demo-auxiliary a:visited
+{
+color: #6600cc; /* auxiliary-visited-hyperlink-color */
+}
+
+div#main.demo-index table a:visited img
+{
+background-color: #6600cc; /* auxiliary-visited-hyperlink-color */
+}
+
+div#main.demo-auxiliary a:focus,
+div#main.demo-auxiliary a:hover
+{
+color: #3399cc; /* auxiliary-dynamic-hyperlink-color */
+}
+
+div#main.demo-index table a:focus img,
+div#main.demo-index table a:hover img
+{
+background-color: #3399cc; /* auxiliary-dynamic-hyperlink-color */
+outline-color: #3399cc; /* Outlines appear in Internet Explorer 8 and later. */
+}
+
+div#main.demo-auxiliary a:active
+{
+color: #cc3333; /* auxiliary-active-hyperlink-color */
+}
+
+div#main.demo-index table a:active img
+{
+background-color: #cc3333; /* auxiliary-active-hyperlink-color */
+}
