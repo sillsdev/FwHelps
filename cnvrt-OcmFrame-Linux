@@ -1,0 +1,32 @@
+#!/bin/bash
+
+cwd=$PWD
+ocmframe="OcmFrame"
+cd $ocmframe
+
+# convert filenames to lowercase
+for file in *.htm *.hhc; do
+	mv "$file" "${file,,}"
+done
+
+sleep 1
+
+# convert "\w*" to lowercase (ie, href=IndexA.htm -> href=indexa.htm)
+for href in *.htm; do
+	sed -i -r 's/(href=\")(\w*)(.htm)/\1\L\2\3/g' $href
+	sed -i -r 's/(src=\")(\w*)(.htm)/\1\L\2\3/g' $href
+done
+
+sleep 1
+
+# convert "\w*" to lowercase (ie, value=IndexA.htm -> value=indexa.htm)
+for value in *.hhc; do
+	sed -i -r 's/(value=\")(\w*)(.htm)/\1\L\2\3/g' $value
+done
+
+sleep 1
+
+# convert files from msdos format to Unix format
+find * \( -iname \*.htm -o -iname \*.hhc -o -iname \*.css \) -print0 | xargs -0 fromdos
+
+cd $cwd
