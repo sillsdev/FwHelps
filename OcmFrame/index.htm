@@ -90,9 +90,9 @@ function matchAnchor()
 	{
 		<!--Jump to that "letter" page if needed-->
 		var oBottomDoc = parent.bottom.document;
-		var sNewIndex = boxValue.substr(0, 1).toUpperCase();
+		var sNewIndex = boxValue.substr(0, 1).toLowerCase();
 		var ch = sNewIndex.charCodeAt(0);
-		if (ch < 65 || ch > 90)
+		if (ch < 97 || ch > 122)
 		{
 			// This is not a valid index page, so don't continue.
 			document.forms.SearchBoxForm.Box.value = g_lastMatch;
@@ -100,13 +100,13 @@ function matchAnchor()
 		}
 
 		var iDot = oBottomDoc.location.href.lastIndexOf('.');
-		var sCurrentIndex = oBottomDoc.location.href.substr(iDot - 1, 1).toUpperCase();
+		var sCurrentIndex = oBottomDoc.location.href.substr(iDot - 1, 1).toLowerCase();
 		if (sNewIndex != sCurrentIndex)
 		{
 			// Load the new index page.
 			g_lastMatchAnchor = 0;
 			g_lastMatch = sNewIndex;
-			oBottomDoc.location.href = 'Index' + sNewIndex + '.htm';
+			oBottomDoc.location.href = 'index' + sNewIndex + '.htm';
 			if (boxLength == 1)
 			{
 				// There's no point in calling gotoHash, since it will move to the top of the
