@@ -12,18 +12,18 @@ DIV.SubsubmodBody { margin-left: 2em }
 H2 { text-align: center; font-size: 140% }
 
 H3.SubmoduleHeading, H3.StepsSubmoduleHeading {
-    font-size: 100%;
-    margin-top: 1em;
-    margin-bottom: 0.5em
-    }
+	font-size: 100%;
+	margin-top: 1em;
+	margin-bottom: 0.5em
+	}
 H3.StepsSubmoduleHeading {
-    text-align: justify      /* forces example links to right margin */
-    }
+	text-align: justify      /* forces example links to right margin */
+	}
 H3.SubsubModHead {
-    font-size: 100%;
-    margin-top: 0.5em;
-    margin-bottom: 0.5em
-    }
+	font-size: 100%;
+	margin-top: 0.5em;
+	margin-bottom: 0.5em
+	}
 
 P, PRE { margin-top: 0.5em; margin-bottom: 0.5em }
 
@@ -38,9 +38,9 @@ UL.ThingsToDo { list-style-type: disc }
 P.StepMilestone { font-weight: bold }                /* milestoneStep of a StepInTask */
 
 DIV.TypedInLineNote {
-        margin-left: 1em;
-        margin-right: 1em
-        }
+		margin-left: 1em;
+		margin-right: 1em
+		}
 B.NoteType { font-size: 90% }
 
 SPAN.PopupText { background-color: #eee }
