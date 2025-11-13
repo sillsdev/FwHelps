@@ -28,14 +28,11 @@ jobs:
               workflow_id: 'patch-installer-cd.yml',
               ref: process.env.FIELDWORKS_BRANCH,
               inputs: {
+                // Use the specific commit SHA from FwHelps that was just merged
                 helps_ref: '${{ github.sha }}',
-                fw_ref: '',
-                lcm_ref: '',
-                localizations_ref: '',
-                installer_ref: '',
-                base_release: '',
-                base_build_number: '',
+                // Set make_release to 'true' to upload the build to S3
                 make_release: 'true'
+                // All other inputs will use their default values from the target workflow
               }
             });
 
