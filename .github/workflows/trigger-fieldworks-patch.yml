@@ -24,16 +24,6 @@ jobs:
         with:
           github-token: ${{ secrets.FIELDWORKS_WORKFLOW_TOKEN }}
           script: |
-            // Trigger the FieldWorks patch build
-            // By passing an empty inputs object, all parameters will use their default values:
-            // - helps_ref defaults to 'develop' (will use latest from develop branch)
-            // - fw_ref defaults to '' (uses the branch specified in 'ref' parameter)
-            // - lcm_ref defaults to 'master'
-            // - localizations_ref defaults to 'develop'
-            // - installer_ref defaults to 'master'
-            // - base_release defaults to 'build-1188'
-            // - base_build_number defaults to '1188'
-            // - make_release defaults to 'true' (will upload to S3)
             await github.rest.actions.createWorkflowDispatch({
               owner: 'sillsdev',
               repo: 'FieldWorks',
