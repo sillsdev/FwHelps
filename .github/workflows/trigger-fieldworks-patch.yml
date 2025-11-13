@@ -12,6 +12,8 @@ jobs:
   trigger-patch-build:
     name: Trigger FieldWorks Patch Installer Build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
       - name: Trigger FieldWorks Patch Build
