@@ -22,20 +22,24 @@ jobs:
         with:
           github-token: ${{ secrets.FIELDWORKS_WORKFLOW_TOKEN }}
           script: |
+            // Trigger the FieldWorks patch build
+            // By passing an empty inputs object, all parameters will use their default values:
+            // - helps_ref defaults to 'develop' (will use latest from develop branch)
+            // - fw_ref defaults to '' (uses the branch specified in 'ref' parameter)
+            // - lcm_ref defaults to 'master'
+            // - localizations_ref defaults to 'develop'
+            // - installer_ref defaults to 'master'
+            // - base_release defaults to 'build-1188'
+            // - base_build_number defaults to '1188'
+            // - make_release defaults to 'true' (will upload to S3)
             await github.rest.actions.createWorkflowDispatch({
               owner: 'sillsdev',
               repo: 'FieldWorks',
               workflow_id: 'patch-installer-cd.yml',
               ref: process.env.FIELDWORKS_BRANCH,
-              inputs: {
-                // Use the specific commit SHA from FwHelps that was just merged
-                helps_ref: '${{ github.sha }}',
-                // Set make_release to 'true' to upload the build to S3
-                make_release: 'true'
-                // All other inputs will use their default values from the target workflow
-              }
+              inputs: {}
             });
 
             console.log('Successfully triggered FieldWorks patch build');
             console.log('Target branch:', process.env.FIELDWORKS_BRANCH);
-            console.log('Using FwHelps commit:', '${{ github.sha }}');
+            console.log('All inputs will use their default values from the target workflow');

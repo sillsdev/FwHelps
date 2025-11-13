@@ -28,11 +28,20 @@ For this workflow to function properly, you need to configure a secret in this r
 When a push to the `develop` branch occurs:
 1. The workflow is triggered automatically
 2. It calls the `patch-installer-cd.yml` workflow in the FieldWorks repository
-3. It passes the commit SHA from FwHelps as the `helps_ref` parameter
-4. The FieldWorks workflow will check out the specific version of FwHelps that was just merged
-5. A new patch installer will be built with the updated help files
+3. All workflow inputs use their default values from the target workflow:
+   - `helps_ref` defaults to `develop` (will use the latest commit from the develop branch)
+   - `fw_ref` defaults to `''` (uses the target branch, i.e., `release/9.3`)
+   - `lcm_ref` defaults to `master`
+   - `localizations_ref` defaults to `develop`
+   - `installer_ref` defaults to `master`
+   - `base_release` defaults to `build-1188`
+   - `base_build_number` defaults to `1188`
+   - `make_release` defaults to `true` (uploads to S3)
+4. A new patch installer will be built with the updated help files
 
 The workflow targets the `release/9.3` branch by default. To target a different FieldWorks release branch, update the `FIELDWORKS_BRANCH` environment variable in the workflow file.
+
+**Note:** Since `helps_ref` defaults to `develop`, the build will use the latest commit on the develop branch at the time the FieldWorks workflow starts, which should be the commit that triggered this workflow (assuming no race conditions with multiple commits).
 
 ### Changes Required to FieldWorks Workflow
 
