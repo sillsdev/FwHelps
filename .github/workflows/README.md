@@ -18,10 +18,7 @@ For this workflow to function properly, you need to configure a secret in this r
    - Name: `FIELDWORKS_WORKFLOW_TOKEN`
    - Value: Your PAT created in step 1
 
-3. Update the workflow file to use this secret instead of `GITHUB_TOKEN`:
-   ```yaml
-   github-token: ${{ secrets.FIELDWORKS_WORKFLOW_TOKEN }}
-   ```
+The workflow is already configured to use the `FIELDWORKS_WORKFLOW_TOKEN` secret.
 
 ### How It Works
 
@@ -41,7 +38,7 @@ When a push to the `develop` branch occurs:
 
 The workflow targets the `release/9.3` branch by default. To target a different FieldWorks release branch, update the `FIELDWORKS_BRANCH` environment variable in the workflow file.
 
-**Note:** Since `helps_ref` defaults to `develop`, the build will use the latest commit on the develop branch at the time the FieldWorks workflow starts, which should be the commit that triggered this workflow (assuming no race conditions with multiple commits).
+**Note:** Since `helps_ref` defaults to `develop`, the build will use the latest commit on the develop branch at the time the FieldWorks workflow checks out the code.
 
 ### Changes Required to FieldWorks Workflow
 

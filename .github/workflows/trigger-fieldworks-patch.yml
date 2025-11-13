@@ -40,6 +40,6 @@ jobs:
               inputs: {}
             });
 
-            console.log('Successfully triggered FieldWorks patch build');
-            console.log('Target branch:', process.env.FIELDWORKS_BRANCH);
-            console.log('All inputs will use their default values from the target workflow');
+            core.info('Successfully triggered FieldWorks patch build');
+            core.info(`Target branch: ${process.env.FIELDWORKS_BRANCH}`);
+            core.info('All inputs will use their default values from the target workflow');
