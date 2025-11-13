@@ -32,6 +32,8 @@ When a push to the `develop` branch occurs:
 4. The FieldWorks workflow will check out the specific version of FwHelps that was just merged
 5. A new patch installer will be built with the updated help files
 
+The workflow targets the `release/9.3` branch by default. To target a different FieldWorks release branch, update the `FIELDWORKS_BRANCH` environment variable in the workflow file.
+
 ### Changes Required to FieldWorks Workflow
 
 **No changes are required** to the FieldWorks `patch-installer-cd.yml` workflow. The workflow already has `workflow_dispatch` enabled with all the necessary inputs, including `helps_ref` which defaults to `develop`.

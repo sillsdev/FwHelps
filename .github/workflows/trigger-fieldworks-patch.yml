@@ -16,14 +16,17 @@ jobs:
     steps:
       - name: Trigger FieldWorks Patch Build
         uses: actions/github-script@v7
+        env:
+          # Update this to target a different FieldWorks release branch
+          FIELDWORKS_BRANCH: 'release/9.3'
         with:
           github-token: ${{ secrets.FIELDWORKS_WORKFLOW_TOKEN }}
           script: |
-            const result = await github.rest.actions.createWorkflowDispatch({
+            await github.rest.actions.createWorkflowDispatch({
               owner: 'sillsdev',
               repo: 'FieldWorks',
               workflow_id: 'patch-installer-cd.yml',
-              ref: 'release/9.3',
+              ref: process.env.FIELDWORKS_BRANCH,
               inputs: {
                 helps_ref: '${{ github.sha }}',
                 fw_ref: '',
@@ -37,4 +40,5 @@ jobs:
             });
 
             console.log('Successfully triggered FieldWorks patch build');
+            console.log('Target branch:', process.env.FIELDWORKS_BRANCH);
             console.log('Using FwHelps commit:', '${{ github.sha }}');
