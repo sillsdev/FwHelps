@@ -1,0 +1,37 @@
+name: Trigger FieldWorks Patch Build
+
+# This workflow triggers a patch build in the FieldWorks repository
+# when changes are merged into the develop branch of FwHelps
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  trigger-patch-build:
+    name: Trigger FieldWorks Patch Installer Build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Trigger FieldWorks Patch Build
+        uses: actions/github-script@v7
+        env:
+          # Update this to target a different FieldWorks release branch
+          FIELDWORKS_BRANCH: 'release/9.3'
+        with:
+          github-token: ${{ secrets.FIELDWORKS_WORKFLOW_TOKEN }}
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: 'sillsdev',
+              repo: 'FieldWorks',
+              workflow_id: 'patch-installer-cd.yml',
+              ref: process.env.FIELDWORKS_BRANCH,
+              inputs: {}
+            });
+
+            core.info('Successfully triggered FieldWorks patch build');
+            core.info(`Target branch: ${process.env.FIELDWORKS_BRANCH}`);
+            core.info('All inputs will use their default values from the target workflow');
