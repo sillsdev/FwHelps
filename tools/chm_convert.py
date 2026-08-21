@@ -533,4 +533,34 @@ def convert_chm(chm: Path, work_root: Path, destination: Path, *, reuse: bool = 
         )
 
 
-__all__ = ["convert_chm", "frontmatter", "run_pandoc", "yaml_scalar"]
+def run_in_private_stage(chm: Path, work_root: Path, destination: Path, *, reuse: bool = False,
+                         limit: int = 0, source_ref: str = "develop",
+                         source_url_base: str | None = None,
+                         extractor=extract, extract_fn=None) -> dict:
+    """Convert into a caller-owned private stage while locking extraction.
+
+    The caller must guarantee that ``destination`` is an unshared staging
+    path. Such a path needs no destination lock; creating one beside it would
+    turn the lockfile into generated content when the enclosing stage is
+    promoted.
+    """
+    chm = Path(chm)
+    extraction = Path(work_root) / safe_stem(chm.name)
+    destination = Path(destination)
+    if (link := first_link_in_path(chm)) is not None:
+        raise SourceSafetyError(f"refusing symlink/junction CHM path: {link}")
+    if (link := first_link_in_path(extraction)) is not None:
+        raise SourceSafetyError(f"refusing symlink/junction extraction path: {link}")
+    _validate_conversion_destination(chm, extraction, destination)
+    with export_locks(extraction):
+        _validate_conversion_destination(chm, extraction, destination)
+        return _convert_chm_locked(
+            chm, work_root, destination, reuse=reuse, limit=limit,
+            source_ref=source_ref, source_url_base=source_url_base,
+            extractor=extractor, extract_fn=extract_fn,
+        )
+
+
+__all__ = [
+    "convert_chm", "frontmatter", "run_in_private_stage", "run_pandoc", "yaml_scalar",
+]

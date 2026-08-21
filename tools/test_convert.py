@@ -73,7 +73,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     "report": {"unsafe_uri": [["topic.htm", "javascript:x"]]},
                 }
 
-            with mock.patch.object(convert, "convert_chm", side_effect=unsafe_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=unsafe_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -99,7 +99,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
             def failed_chm(_chm, extraction, _destination, **_kwargs):
                 raise RuntimeError(f"failed in {extraction}")
 
-            with mock.patch.object(convert, "convert_chm", side_effect=failed_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=failed_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -129,7 +129,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
             root = Path(raw)
             (root / "Using_Help.chm").write_bytes(b"fixture")
             diagnostics = root.parent / "nested" / "diagnostics.json"
-            with mock.patch.object(convert, "convert_chm", return_value={
+            with mock.patch.object(convert, "run_in_private_stage", return_value={
                 "chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                 "topics": 0, "images": 0, "report": {},
             }), mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
@@ -167,7 +167,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as raw:
             repo = Path(raw)
             (repo / "Using_Help.chm").write_bytes(b"")
-            with mock.patch.object(convert, "convert_chm", return_value={
+            with mock.patch.object(convert, "run_in_private_stage", return_value={
                      "chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                      "topics": 0, "images": 0, "report": {},
                  }) as chm, \
@@ -194,7 +194,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 return {"chm": chm.name, "stem": destination.name, "toc": [],
                         "topics": 1, "images": 0, "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=fake_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=fake_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -218,11 +218,31 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 return {"chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                         "topics": 1, "images": 0, "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=fake_chm):
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=fake_chm):
                 result = convert.build(repo, repo / "export", repo / "work")
 
             self.assertTrue(result["promoted"])
-            self.assertFalse(list((repo / "export").glob(".fwhelps-export-*.lock")))
+            self.assertFalse(list((repo / "export").rglob(".fwhelps-export-*.lock")))
+
+    def test_chm_private_stage_does_not_publish_destination_lockfile(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            chm = root / "Using_Help.chm"
+            chm.write_bytes(b"fixture")
+
+            def fake_extract(_chm, extraction):
+                extraction.mkdir(parents=True, exist_ok=True)
+                (extraction / "topic.htm").write_text(
+                    "<title>Topic</title><h2>Topic</h2>", encoding="cp1252"
+                )
+
+            with mock.patch.object(chm_convert, "run_pandoc", return_value=("# Topic\n", [])):
+                chm_convert.run_in_private_stage(
+                    chm, root / "work", root / "stage" / "chm" / "Using_Help",
+                    extractor=fake_extract,
+                )
+
+            self.assertFalse(list((root / "stage" / "chm").rglob(".fwhelps-export-*.lock")))
 
     def test_direct_chm_conversion_preserves_related_images_and_disambiguates_titles(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -280,7 +300,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 return {"chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                         "topics": 1, "images": 0, "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=bad_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=bad_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -304,7 +324,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     "title": "Missing", "href": "missing.htm", "depth": 1,
                 }], "topics": 1, "images": 0, "topics_paths": ["missing.htm"], "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=bad_nav), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=bad_nav), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -325,7 +345,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 }], "topics": 1, "images": 0, "topics_paths": ["index.htm"],
                         "report": {"stale_toc_entries": [["About_Strata_Sequences.htm", "missing"]]}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=stale), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=stale), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -350,7 +370,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     "title": "Qualified", "href": "Using_Help.chm::/Using_Help.hhc", "depth": 1,
                 }], "topics": 1, "images": 0, "topics_paths": ["index.htm"], "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=qualified), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=qualified), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -371,7 +391,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 return {"chm": chm.name, "stem": destination.name, "toc": [],
                         "topics": 1, "images": 0, "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=fake_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=fake_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -802,7 +822,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     "report": {"unsafe_uri": [["topic.htm", "javascript:x"]]},
                 }
 
-            with mock.patch.object(convert, "convert_chm", side_effect=unsafe_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=unsafe_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -886,7 +906,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "topics": 1, "images": 0, "topics_paths": ["source.htm"],
                         "source_replacement_paths": ["source.htm"], "report": {}}
 
-            with mock.patch.object(convert, "convert_chm", side_effect=source_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=source_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
@@ -917,7 +937,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     "docs/Generated.pdf", {"source_count": 0, "exporter_count": 1},
                 ]],
             }}
-            with mock.patch.object(convert, "convert_chm", side_effect=clean_chm), \
+            with mock.patch.object(convert, "run_in_private_stage", side_effect=clean_chm), \
                  mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(pdf_result, [])):
                 result = convert.build(repo, repo / "export", repo / "work")
             source = [issue for issue in result["report"]["issues"]

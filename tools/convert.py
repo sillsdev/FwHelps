@@ -11,7 +11,7 @@ from pathlib import Path
 from urllib.parse import quote
 
 import pdf_convert
-from chm_convert import convert_chm
+from chm_convert import run_in_private_stage
 from corpus_validation import validate_corpus
 from output_fs import ExportLock, OutputPathError, OutputStaging, validate_output_paths
 from reporting import Issue, Report, make_issue
@@ -103,9 +103,9 @@ def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
                 continue
             seen_names.add(stem.casefold())
             try:
-                result = convert_chm(chm, work, staging.path / "chm" / stem,
-                                     reuse=reuse, limit=limit, source_ref=source_ref,
-                                     source_url_base=chm_source_url_base)
+                result = run_in_private_stage(chm, work, staging.path / "chm" / stem,
+                                              reuse=reuse, limit=limit, source_ref=source_ref,
+                                              source_url_base=chm_source_url_base)
                 chm_results.append(result)
                 stem = result.get("stem", "")
                 for source_rel, raw_target in result.get("report", {}).get("broken_links", []):
