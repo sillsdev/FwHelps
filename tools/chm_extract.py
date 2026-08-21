@@ -96,48 +96,63 @@ KNOWN_EXTS = {
 }
 
 
-def validate(outdir: Path) -> list[str]:
-    """Detect a silently-truncated or partial extraction.
+def validate(outdir: Path) -> tuple[list[str], list[str]]:
+    """Check an extraction, separating tool failure from content bugs.
 
-    Returns a list of human-readable problems; empty means the extraction is
-    trustworthy. Callers should treat a non-empty result as a hard failure --
-    a truncated corpus produces a subtly wrong RAG index, which is worse than
-    no index at all.
+    Returns (fatal, advisory).
+
+    `fatal` means the extractor lost data -- a truncated corpus yields a subtly
+    wrong RAG index, which is worse than no index. `advisory` means the CHM
+    itself is inconsistent, e.g. the author renamed a topic and left a stale
+    TOC entry behind. That is real, but it is the doc author's to fix and must
+    not block a build.
+
+    Distinguishing them: hh.exe truncation leaves a sibling whose name is a
+    prefix of the expected one ("Discussion_field_(Extended_Note)" for
+    "...(Extended_Note).htm"). A genuinely absent topic leaves no such trace.
     """
-    problems = []
+    fatal, advisory = [], []
 
-    # 1. Filenames whose extension got clipped (".ht", ".gi", or none at all).
+    # Filenames whose extension got clipped (".ht", ".gi", or none at all).
     suspect = [
         p for p in outdir.rglob("*")
         if p.is_file() and p.suffix.lower() not in KNOWN_EXTS
     ]
     for p in suspect[:20]:
-        problems.append(f"truncated/unknown filename: {p.relative_to(outdir).as_posix()}")
+        fatal.append(f"truncated/unknown filename: {p.relative_to(outdir).as_posix()}")
     if len(suspect) > 20:
-        problems.append(f"... and {len(suspect) - 20} more truncated filenames")
+        fatal.append(f"... and {len(suspect) - 20} more truncated filenames")
 
-    # 2. Every topic the TOC points at must actually exist on disk.
     hhc = next(outdir.rglob("*.hhc"), None)
     if hhc is None:
-        problems.append("no .hhc table of contents found in extraction")
-    else:
-        import html as _html
-        from urllib.parse import unquote, urldefrag
+        fatal.append("no .hhc table of contents found in extraction")
+        return fatal, advisory
 
-        text = hhc.read_text(encoding="cp1252", errors="replace")
-        # Values are HTML-escaped in the sitemap ("Texts_&amp;_Words") *and* may
-        # be %-encoded; both have to come off before hitting the filesystem.
-        targets = {
-            urldefrag(unquote(_html.unescape(m)))[0].replace("\\", "/")
-            for m in re.findall(r'name="local"\s+value="([^"]+)"', text, re.I)
-        }
-        missing = sorted(t for t in targets if t and not (outdir / t).exists())
-        for t in missing[:20]:
-            problems.append(f"TOC points at a file that was not extracted: {t}")
-        if len(missing) > 20:
-            problems.append(f"... and {len(missing) - 20} more missing TOC targets")
+    import html as _html
+    from urllib.parse import unquote, urldefrag
 
-    return problems
+    text = hhc.read_text(encoding="cp1252", errors="replace")
+    # Values are HTML-escaped in the sitemap ("Texts_&amp;_Words") *and* may be
+    # %-encoded; both have to come off before hitting the filesystem.
+    targets = {
+        urldefrag(unquote(_html.unescape(m)))[0].replace("\\", "/")
+        for m in re.findall(r'name="local"\s+value="([^"]+)"', text, re.I)
+    }
+    for t in sorted(targets):
+        if not t or (outdir / t).exists():
+            continue
+        target = outdir / t
+        stem = target.name
+        truncated = target.parent.is_dir() and any(
+            sib.name != stem and stem.startswith(sib.name)
+            for sib in target.parent.iterdir() if sib.is_file()
+        )
+        if truncated:
+            fatal.append(f"TOC target lost to filename truncation: {t}")
+        else:
+            advisory.append(f"TOC points at a topic that does not exist: {t}")
+
+    return fatal, advisory
 
 
 def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> str:
@@ -162,13 +177,15 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
                 errors.append(f"{tool}: produced no .htm files")
                 continue
             if check:
-                problems = validate(outdir)
-                if problems:
+                fatal, advisory = validate(outdir)
+                if fatal:
                     raise ExtractError(
                         f"{tool} produced a corrupt/incomplete extraction "
-                        f"({len(problems)} problems):\n  "
-                        + "\n  ".join(problems)
+                        f"({len(fatal)} problems):\n  " + "\n  ".join(fatal)
                     )
+                # Content-level inconsistencies ride along for the author
+                # report rather than failing the build.
+                extract.advisory = advisory
             return tool
 
     raise ExtractError(
@@ -182,3 +199,5 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
 if __name__ == "__main__":
     tool = extract(Path(sys.argv[1]), Path(sys.argv[2]))
     print(f"extracted with {tool}")
+    for note in getattr(extract, "advisory", []):
+        print(f"  advisory: {note}")

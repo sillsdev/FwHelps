@@ -59,6 +59,19 @@ function Span(el)
   return el.content
 end
 
+--- Repoint internal topic links at their .md counterparts.
+--- Done here rather than with a regex over the rendered markdown because
+--- filenames like "Export_full_lexicon_(LIFT).htm" contain parentheses, which
+--- no sane link regex survives. The AST has the target as a plain string.
+function Link(el)
+  local t = el.target
+  if t == "" or t:sub(1, 1) == "#" or t:match("^%a[%w+.%-]*:") then return el end
+  local path, frag = t:match("^([^#]*)(.*)$")
+  local rewritten, n = path:gsub("%.html?$", ".md")
+  if n > 0 then el.target = rewritten .. frag end
+  return el
+end
+
 --- Collect every row across head/bodies/foot as a flat list.
 local function all_rows(el)
   local rows = pandoc.List()
@@ -126,36 +139,68 @@ function Div(el)
   return el
 end
 
---- Turn "<h4 class='Note'>Note" into "> [!NOTE]" and demote stray h2/h1.
---- Every topic opens with an <h2> title that becomes the frontmatter title, so
---- body headings shift up one level to keep a single h1 per page.
+--- Every topic opens with an <h2> title, which Python promotes to the page's
+--- single h1. Shift body headings up to match, leaving the 4 stray h1s alone.
 function Header(el)
-  for _, cls in ipairs(el.classes) do
-    if ALERT_MAP[cls] then
-      return pandoc.Div({}, pandoc.Attr("", { "alert-" .. ALERT_MAP[cls] }))
-    end
-  end
+  if el.level > 1 then el.level = el.level - 1 end
   return el
 end
 
---- Remove the "Related Topics" / "Related Internet Sites" trailers.
---- 1,574 of 1,599 topics carry one; as prose they append a link list to nearly
---- every chunk. Python re-attaches them as frontmatter so they stay available
---- as a link graph without polluting the embedded text.
 local TRAILER = { ["Related Topics"] = true, ["Related Internet Sites"] = true }
 
+local function alert_kind(block)
+  if block.t ~= "Header" then return nil end
+  for _, cls in ipairs(block.classes) do
+    if ALERT_MAP[cls] then return ALERT_MAP[cls] end
+  end
+  -- Some callouts carry the word as heading text with no class.
+  local t = text_of(block.content):gsub("^%s*[^%w]*%s*", "")
+  return ALERT_MAP[t]
+end
+
+--- Two block-level jobs in one pass:
+---
+--- 1. Strip the "Related Topics" / "Related Internet Sites" trailers. 1,574 of
+---    1,599 topics carry one; as prose they append a link list to nearly every
+---    chunk. Python re-attaches them as frontmatter, so they survive as a link
+---    graph without polluting the embedded text.
+---
+--- 2. Wrap Note/Tip/Important/Warning/Caution callouts in GitHub alert
+---    blockquotes. This has to happen here rather than in Header() because the
+---    callout body is the *following* blocks, not the heading's children.
 function Blocks(blocks)
-  local out, skipping, skip_level = pandoc.List(), false, nil
-  for _, b in ipairs(blocks) do
-    if b.t == "Header" then
-      if TRAILER[text_of(b.content)] then
-        skipping, skip_level = true, b.level
-        goto continue
-      elseif skipping and b.level <= skip_level then
-        skipping = false
+  local out = pandoc.List()
+  local i = 1
+  while i <= #blocks do
+    local b = blocks[i]
+
+    if b.t == "Header" and TRAILER[text_of(b.content)] then
+      local level = b.level
+      i = i + 1
+      while i <= #blocks and not (blocks[i].t == "Header" and blocks[i].level <= level) do
+        i = i + 1
       end
+      goto continue
     end
-    if not skipping then out:insert(b) end
+
+    local kind = alert_kind(b)
+    if kind then
+      -- Raw, not Str: pandoc would escape the brackets to "\[!NOTE\]", which
+      -- GitHub no longer recognises as an alert.
+      local marker = pandoc.RawInline("gfm", "[!" .. kind .. "]")
+      local body = pandoc.List({ pandoc.Para({ marker }) })
+      local level = b.level
+      i = i + 1
+      while i <= #blocks and not (blocks[i].t == "Header" and blocks[i].level <= level) do
+        body:insert(blocks[i])
+        i = i + 1
+      end
+      out:insert(pandoc.BlockQuote(body))
+      goto continue
+    end
+
+    out:insert(b)
+    i = i + 1
     ::continue::
   end
   return out
