@@ -11,10 +11,11 @@ Make the exporter safe to reuse outside FwHelps, reproducible in CI, observable 
 ## Safety and source identity
 
 - CHM extraction reuse will require a converter-owned manifest whose source SHA-256 matches the current CHM. Missing or mismatched manifests force a fresh extraction.
-- Direct extraction will reject destinations equal to, containing, or contained by the source CHM directory, in addition to the existing root and output protections.
+- Direct extraction will reject a destination equal to the source directory or containing the source CHM. A separate descendant work directory remains valid because replacing it cannot remove the source CHM.
 - CHM and PDF discovery will reject symlinks and any resolved input outside the repository root.
 - Absolute local Markdown and image targets will be fatal validation errors rather than silently ignored.
 - PDF cleanup will accept prior manifest entries only when they match paths derivable from the manifest's recorded source PDF and remain under the PDF output root. A corrupt manifest will fail before deletion.
+- Export mutation boundaries will use a non-blocking native advisory lock on a deterministic sibling lockfile. This serializes cooperating exporter invocations for the same normalized destination (and allows different destinations to proceed), but is not a defense against a hostile local process that ignores OS locks. Stale lockfiles do not block because ownership is the held OS handle, not file contents.
 
 ## Conversion correctness
 
@@ -23,7 +24,7 @@ Make the exporter safe to reuse outside FwHelps, reproducible in CI, observable 
 - CHM TOC parsing will use an HTML parser and support attribute order, quoting, case, and escaped targets.
 - Extraction validation will validate TOC targets and known truncation patterns without rejecting legitimate asset extensions solely because they are new.
 - Frontmatter will use one safe serializer that rejects or escapes control characters and multiline scalar injection.
-- Emitted links will use an allowlist of safe schemes. Unsafe schemes such as `javascript:` and `file:` will be reported as fatal and removed or neutralized before publication.
+- Emitted links will use an allowlist of safe schemes. Source-authored unsafe schemes such as `javascript:` and `file:` are neutralized and reported as source advisories; any unsafe target that survives into the emitted corpus remains fatal.
 
 ## Reporting policy
 

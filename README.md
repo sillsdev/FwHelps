@@ -41,6 +41,12 @@ Each build also produces `author-report.json`, with a stable `{corpus, summary,
 issues}` schema covering broken links, topics missing from the table of contents,
 and other source/export quality findings.
 
+Exporter mutation boundaries use a non-blocking native advisory lock on a
+deterministic sibling lockfile, so cooperating invocations targeting the same
+destination fail clearly instead of racing. The lock is a coordination aid,
+not protection against a local process that deliberately ignores file locks;
+stale lockfiles are harmless because ownership is held by the OS handle.
+
 ### Versions
 
 Each FieldWorks release is tagged here by `releaseTagger.py`; the matching
@@ -73,34 +79,46 @@ export is tagged `markdown-export/<tag>`.
 Local build (needs `pandoc` 3.x, and `7z` or Windows' built-in `hh.exe`):
 
 ```sh
-uv run --no-project --python .venv/bin/python tools/convert.py --repo . --out export
+uv run --frozen tools/convert.py --repo . --out export
 ```
 
 ### Reproducible local setup
 
-The converter uses uv with the Python version in [`.python-version`](.python-version)
-and exact runtime/development pins in `requirements.txt` and
-`requirements-dev.txt`:
+The converter uses uv with the exact Python version in
+[`.python-version`](.python-version). `uv.lock` is the authoritative dependency
+file; `requirements.txt` and `requirements-dev.txt` are deterministic
+lock-derived compatibility exports for older tooling and should not be edited
+independently. The CI workflow installs only from the frozen lock:
 
 ```sh
 uv python install
-uv venv
-uv pip install --python .venv/bin/python \
-  --requirement requirements.txt \
-  --requirement requirements-dev.txt
-uv run --no-project --python .venv/bin/python \
+uv lock --check
+uv sync --frozen
+uv run --frozen \
   -m unittest discover -s tools -p 'test_*.py' -v
-uv run --no-project --python .venv/bin/python ruff check tools
-uv run --no-project --python .venv/bin/python \
+uv run --frozen ruff check tools
+uv run --frozen \
   tools/convert.py --repo . --out export
-uv run --no-project --python .venv/bin/python \
+uv run --frozen \
   tools/pdf_convert.py --repo . --out export --update-outlines
 ```
 
-On PowerShell, use `.venv\Scripts\python.exe` in place of
-`.venv/bin/python` in those `uv run` and `uv pip` commands. Updating outline
-locks is intentional and should be reviewed with the resulting
+To regenerate the compatibility exports after changing project dependencies:
+
+```sh
+uv export --frozen --no-dev --no-hashes --format requirements.txt \
+  --output-file requirements.txt
+uv export --frozen --only-group dev --no-hashes --format requirements.txt \
+  --output-file requirements-dev.txt
+```
+
+On PowerShell, the same `uv run --frozen` commands work unchanged. Updating
+outline locks is intentional and should be reviewed with the resulting
 `tools/pdf_outlines.json` change.
+
+The workflow still installs the runner-image package `p7zip-full` for CHM
+extraction; it is intentionally outside the Python lock. Pandoc is downloaded
+as the pinned 3.9.0.2 amd64 package and its SHA-256 is checked before install.
 
 > [!IMPORTANT]
 > `hh.exe -decompile` silently truncates filenames when the output path exceeds

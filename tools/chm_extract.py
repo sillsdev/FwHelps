@@ -14,13 +14,41 @@ import shutil
 import subprocess
 import sys
 import time
+from html.parser import HTMLParser
 from pathlib import Path
+from urllib.parse import unquote, urldefrag
 
-from output_fs import OutputStaging
+from output_fs import ExportLock, OutputPathError, OutputStaging
+from source_safety import first_link_in_path, validate_source_tree
 
 
 class ExtractError(RuntimeError):
     pass
+
+
+def _validate_extract_paths(chm: Path, outdir: Path) -> tuple[Path, Path]:
+    """Reject extraction destinations that could consume their source."""
+    chm = Path(os.path.abspath(os.fspath(Path(chm).expanduser())))
+    outdir = Path(os.path.abspath(os.fspath(Path(outdir).expanduser())))
+    if (link := first_link_in_path(chm)) is not None:
+        raise ExtractError(f"refusing symlink/junction CHM path component: {link}")
+    if (link := first_link_in_path(outdir)) is not None:
+        raise OutputPathError(f"refusing symlink/junction extraction destination: {link}")
+    try:
+        source = chm.resolve(strict=True)
+    except OSError as exc:
+        raise ExtractError(f"no such CHM: {chm}") from exc
+    destination = outdir.resolve(strict=False)
+    if not source.is_file():
+        raise ExtractError(f"no such CHM: {chm}")
+    if destination == source or destination in source.parents:
+        raise OutputPathError(
+            "refusing extraction destination that contains the source CHM: "
+            f"source={source}, destination={destination}"
+        )
+    # Preserve the lexical destination so OutputStaging can independently
+    # enforce its own path-chain ownership checks before creating staging.
+    return chm, outdir
 
 
 def _sevenzip(chm: Path, outdir: Path) -> str | None:
@@ -92,11 +120,62 @@ def _hh(chm: Path, outdir: Path) -> str | None:
     return "hh.exe"
 
 
-KNOWN_EXTS = {
-    ".htm", ".html", ".css", ".js", ".gif", ".png", ".jpg", ".jpeg", ".bmp",
-    ".hhc", ".hhk", ".glo", ".lng", ".ico", ".svg", ".htt", ".xml", ".txt",
-    ".brs",
-}
+EXTRACTION_MANIFEST_NAME = ".chm-extraction-manifest.json"
+
+
+class _ReferenceParser(HTMLParser):
+    """Collect CHM sitemap locals and HTML href/src references."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.local: list[str] = []
+        self.html: list[tuple[str, str]] = []
+
+    def handle_starttag(self, tag: str, attrs) -> None:
+        values = {key.casefold(): value or "" for key, value in attrs}
+        if (tag.casefold() == "param"
+                and values.get("name", "").casefold() == "local"
+                and values.get("value")):
+            self.local.append(values["value"])
+        for attr in ("href", "src"):
+            if values.get(attr):
+                self.html.append((attr, values[attr]))
+
+
+_SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
+_DRIVE = re.compile(r"^[A-Za-z]:[\\/]")
+_URI_ASCII_SEPARATORS = re.compile(r"[\x00-\x20]")
+
+
+def _reference_kind(raw: str) -> tuple[str, str]:
+    """Return (kind, path), classifying URI safety before filesystem access."""
+    value = unquote(urldefrag(raw.strip())[0]).replace("\\", "/")
+    canonical = _URI_ASCII_SEPARATORS.sub("", value)
+    if not canonical:
+        return "fragment", value
+    # A leading double slash is a UNC path in CHM content.  It is never a
+    # permitted external URL because only explicitly allowed schemes are
+    # accepted by the exporter.
+    if canonical.startswith(("/", "//")) or _DRIVE.match(canonical):
+        return "path_escape", value
+    scheme = _SCHEME.match(canonical)
+    if scheme:
+        return ("external", value) if scheme.group(0)[:-1].casefold() in {
+            "http", "https", "mailto"
+        } else ("unsafe_uri", value)
+    return "local", value
+
+
+def _prefix_sibling(target: Path, expected: str) -> bool:
+    if not target.parent.is_dir():
+        return False
+    expected_folded = expected.casefold()
+    return any(
+        sibling.is_file()
+        and sibling.name.casefold() != expected_folded
+        and expected_folded.startswith(sibling.name.casefold())
+        for sibling in target.parent.iterdir()
+    )
 
 
 def validate(outdir: Path) -> tuple[list[str], list[str]]:
@@ -116,54 +195,59 @@ def validate(outdir: Path) -> tuple[list[str], list[str]]:
     """
     fatal, advisory = [], []
 
-    # Filenames whose extension got clipped (".ht", ".gi", or none at all).
-    suspect = [
-        p for p in outdir.rglob("*")
-        if p.is_file() and p.suffix.lower() not in KNOWN_EXTS
-    ]
-    for p in suspect[:20]:
-        fatal.append(f"truncated/unknown filename: {p.relative_to(outdir).as_posix()}")
-    if len(suspect) > 20:
-        fatal.append(f"... and {len(suspect) - 20} more truncated filenames")
+    parsers: list[tuple[Path, _ReferenceParser]] = []
+    for path in sorted(outdir.rglob("*"), key=lambda p: p.relative_to(outdir).as_posix().casefold()):
+        if not path.is_file() or path.name == EXTRACTION_MANIFEST_NAME:
+            continue
+        if path.suffix.casefold() not in {".hhc", ".htm", ".html"}:
+            continue
+        parser = _ReferenceParser()
+        parser.feed(path.read_text(encoding="cp1252", errors="replace"))
+        parsers.append((path, parser))
 
-    hhc = next(outdir.rglob("*.hhc"), None)
-    if hhc is None:
+    if not any(path.suffix.casefold() == ".hhc" for path, _ in parsers):
         fatal.append("no .hhc table of contents found in extraction")
         return fatal, advisory
 
-    import html as _html
-    from urllib.parse import unquote, urldefrag
-
-    text = hhc.read_text(encoding="cp1252", errors="replace")
-    # Values are HTML-escaped in the sitemap ("Texts_&amp;_Words") *and* may be
-    # %-encoded; both have to come off before hitting the filesystem.
-    targets = {
-        urldefrag(unquote(_html.unescape(m)))[0].replace("\\", "/")
-        for m in re.findall(r'name="local"\s+value="([^"]+)"', text, re.IGNORECASE)
-    }
-    for t in sorted(targets):
-        if not t or (outdir / t).exists():
-            continue
-        target = outdir / t
-        stem = target.name
-        truncated = target.parent.is_dir() and any(
-            sib.name != stem and stem.startswith(sib.name)
-            for sib in target.parent.iterdir() if sib.is_file()
-        )
-        if truncated:
-            fatal.append(f"TOC target lost to filename truncation: {t}")
-        else:
-            advisory.append(f"TOC points at a topic that does not exist: {t}")
+    seen: set[tuple[str, str, str]] = set()
+    for source, parser in parsers:
+        references = [("toc", value) for value in parser.local] + parser.html
+        for kind, raw in references:
+            uri_kind, value = _reference_kind(raw)
+            if uri_kind == "fragment" or uri_kind == "external":
+                continue
+            if uri_kind in {"unsafe_uri", "path_escape"}:
+                key = (uri_kind, source.as_posix(), raw)
+                if key not in seen:
+                    advisory.append(
+                        f"source_{uri_kind}: {source.relative_to(outdir).as_posix()}: {raw}"
+                    )
+                    seen.add(key)
+                continue
+            target = (source.parent / value).resolve()
+            if target != outdir.resolve() and outdir.resolve() not in target.parents:
+                advisory.append(
+                    f"source_path_escape: {source.relative_to(outdir).as_posix()}: {raw}"
+                )
+                continue
+            if target.exists():
+                continue
+            if _prefix_sibling(target, target.name):
+                message = f"{('TOC target' if kind == 'toc' else 'HTML target')} lost to filename truncation: {value}"
+                fatal.append(message)
+            elif kind == "toc":
+                advisory.append(f"TOC points at a topic that does not exist: {value}")
+            else:
+                advisory.append(f"HTML {kind} points at a target that does not exist: {value}")
 
     return fatal, advisory
 
 
-def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> str:
+def _extract_locked(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> str:
     """Extract `chm` into `outdir`. Returns the name of the tool that worked."""
     chm = Path(chm)
     outdir = Path(outdir)
-    if not chm.is_file():
-        raise ExtractError(f"no such CHM: {chm}")
+    chm, outdir = _validate_extract_paths(chm, outdir)
     # Keep failed attempts in private directories beside the destination.  The
     # staging owner guarantees that an existing destination is untouched until
     # a validated extraction is promoted, and same-directory staging makes the
@@ -177,6 +261,7 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
                 tool = backend(chm, staging.path)
                 if not tool:
                     continue
+                validate_source_tree(staging.path)
                 if not any(
                     path.is_file() and path.suffix.lower() in {".htm", ".html"}
                     for path in staging.rglob("*")
@@ -200,6 +285,7 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
                     # Retain the historical clean=False merge semantics,
                     # but construct the merged tree privately so a copy
                     # failure cannot partially modify the destination.
+                    validate_source_tree(outdir)
                     with OutputStaging(outdir) as merged:
                         shutil.copytree(outdir, merged.path, dirs_exist_ok=True)
                         shutil.copytree(staging.path, merged.path, dirs_exist_ok=True)
@@ -216,6 +302,23 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
         r"  Windows: 7-Zip, or the built-in C:\Windows\hh.exe" "\n"
         + ("  tried: " + "; ".join(errors) if errors else "")
     )
+
+
+def _extract_already_locked(
+    chm: Path, outdir: Path, clean: bool = True, check: bool = True
+) -> str:
+    """Internal extraction entry point for callers holding ``outdir``'s lock."""
+    return _extract_locked(chm, outdir, clean=clean, check=check)
+
+
+def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> str:
+    """Extract into ``outdir`` while serializing overlapping exporters."""
+    chm, outdir = _validate_extract_paths(Path(chm), Path(outdir))
+    with ExportLock(outdir):
+        # Revalidate after acquiring the lock to close the preflight-to-write
+        # path/link window for cooperating invocations.
+        chm, outdir = _validate_extract_paths(chm, outdir)
+        return _extract_locked(chm, outdir, clean=clean, check=check)
 
 
 if __name__ == "__main__":

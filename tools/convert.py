@@ -3,15 +3,19 @@
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import re
+import tempfile
 from pathlib import Path
 from urllib.parse import quote
 
 import pdf_convert
 from chm_convert import convert_chm
 from corpus_validation import validate_corpus
-from output_fs import OutputStaging, validate_output_paths
-from reporting import Issue, Report
+from output_fs import ExportLock, OutputPathError, OutputStaging, validate_output_paths
+from reporting import Issue, Report, make_issue
+from source_safety import discover_source_files
 
 DEFAULT_SOURCE_REPO = "https://github.com/sillsdev/FwHelps"
 DEFAULT_CHM_SOURCE_URL_BASE = "https://downloads.languagetechnology.org/fieldworks/Documentation/en"
@@ -19,23 +23,13 @@ DEFAULT_CHM_SOURCE_URL_BASE = "https://downloads.languagetechnology.org/fieldwor
 
 def discover_chms(repo: Path) -> list[Path]:
     """Discover all CHMs at the repository root in stable case-folded order."""
-    return sorted(
-        (path for path in Path(repo).iterdir() if path.is_file() and path.suffix.lower() == ".chm"),
-        key=lambda path: (path.name.casefold(), path.name),
-    )
+    return discover_source_files(Path(repo), suffixes={".chm"}, recursive=False)
 
 
-def _pdf_issue(code: str, item: object) -> Issue:
-    mapping = {"pdf_failures": "pdf_failure", "outline_drift": "outline_drift",
-               "outline_unpinned": "outline_unpinned", "destination_collisions": "destination_collision",
-               "html_tables_kept": "raw_html",
-               "pdf_export_replacements": "replacement_character"}
-    mapped = mapping.get(code, code)
-    fatal = code in {"pdf_failures", "outline_drift", "outline_unpinned",
-                     "destination_collisions", "pdf_export_replacements"}
+def _report_issue(code: str, item: object, default_path: str = ""):
     path = item[0] if isinstance(item, (list, tuple)) and item else str(item)
     message = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else str(item)
-    return Issue(mapped, message, str(path), fatal, "exporter")
+    return make_issue(code, str(message), str(path or default_path), item)
 
 
 def _write_readme(stage: Path, chms: list[dict], pdf_count: int,
@@ -56,14 +50,17 @@ def _write_readme(stage: Path, chms: list[dict], pdf_count: int,
     ]
     for result in chms:
         lines.append(f"### {result['chm']}")
-        known_topics = {str(item).replace("\\", "/") for item in result.get("topics_paths", [])}
+        known_topics = {
+            str(item).replace("\\", "/").casefold()
+            for item in result.get("topics_paths", [])
+        }
         for node in result.get("toc", []):
             if not node.get("title"):
                 continue
             indent = "  " * max(0, int(node.get("depth", 1)) - 1)
             href = node.get("href", "")
             topic_path = Path(href.split("#", 1)[0]).as_posix()
-            if href and topic_path in known_topics:
+            if href and topic_path.casefold() in known_topics:
                 target = quote(f"chm/{result['stem']}/{Path(href).with_suffix('.md').as_posix()}")
                 lines.append(f"{indent}- [{node['title']}]({target})")
             else:
@@ -77,7 +74,7 @@ def _write_readme(stage: Path, chms: list[dict], pdf_count: int,
     (stage / ".nojekyll").write_text("", encoding="utf-8")
 
 
-def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
+def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
           limit: int = 0, source_ref: str = "develop",
           source_repo: str = DEFAULT_SOURCE_REPO,
           chm_source_url_base: str = DEFAULT_CHM_SOURCE_URL_BASE) -> dict:
@@ -90,7 +87,7 @@ def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
     chm_results: list[dict] = []
     chms = discover_chms(repo)
     if not chms:
-        report.add(Issue("chm_discovery", "no repository-root CHM files found", "", True))
+        report.add(make_issue("chm_discovery", "no repository-root CHM files found"))
 
     # Validate the extraction workspace independently. The publication stage
     # must live beside the destination so promotion is one same-volume rename
@@ -102,7 +99,7 @@ def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
             from chm_metadata import safe_stem
             stem = safe_stem(chm.name)
             if stem.casefold() in seen_names:
-                report.add(Issue("destination_collision", f"CHM namespace collision: {stem}", chm.name, True))
+                report.add(make_issue("destination_collision", f"CHM namespace collision: {stem}", chm.name))
                 continue
             seen_names.add(stem.casefold())
             try:
@@ -133,21 +130,9 @@ def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
                     )
                 for code, items in result.get("report", {}).items():
                     for item in items:
-                        fatal = code in {"pandoc_failures", "unmapped_span_classes"}
-                        chm_mapping = {
-                            "pandoc_failures": "pandoc_failure",
-                            "unmapped_span_classes": "unmapped_span",
-                            "broken_links": "missing_link",
-                            "broken_images": "missing_image",
-                            "duplicate_titles": "duplicate_title",
-                            "destination_collisions": "destination_collision",
-                        }
-                        report.add(Issue(
-                            chm_mapping.get(code, code),
-                            str(item), chm.name, fatal, "exporter" if fatal else "source",
-                        ))
+                        report.add(_report_issue(code, item, chm.name))
             except Exception as exc:  # noqa: BLE001 - isolate one corrupt CHM
-                report.add(Issue("chm_failure", f"{type(exc).__name__}: {exc}", chm.name, True))
+                report.add(make_issue("chm_failure", f"{type(exc).__name__}: {exc}", chm.name))
 
         pdf_url = f"{source_repo.rstrip('/')}/blob/{source_ref}/{{path}}"
         try:
@@ -174,19 +159,16 @@ def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
             # fatal even though the source risk is also reported.
             if str(source_rel) not in pdf_export_paths:
                 source_replacement_paths.add(emitted_rel)
-            report.add(Issue(
-                "replacement_character",
+            report.add(make_issue(
+                "source_replacement_character",
                 f"source PDF replacement characters: {details}",
-                emitted_rel,
-                False,
-                "source",
-                details,
+                emitted_rel, details,
             ))
         for code, items in pdf_report.items():
             if code == "pdf_source_replacements":
                 continue
             for item in items:
-                report.add(_pdf_issue(code, item))
+                report.add(_report_issue(code, item))
         report.metadata = {
             "source_ref": source_ref,
             "source_repo": source_repo.rstrip("/"),
@@ -224,6 +206,135 @@ def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
             "pdfs": pdf_result.get("converted", 0), "promoted": True}
 
 
+def _build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
+           limit: int = 0, source_ref: str = "develop",
+           source_repo: str = DEFAULT_SOURCE_REPO,
+           chm_source_url_base: str = DEFAULT_CHM_SOURCE_URL_BASE) -> dict:
+    """Serialize one complete corpus mutation for cooperating exporters."""
+    repo, out, work = Path(repo).resolve(), Path(out).resolve(), Path(work).resolve()
+    validate_output_paths(out, work_dir=work, repo_root=repo, source_root=repo)
+    with ExportLock(out):
+        # The destination/link chain is checked again after lock acquisition,
+        # immediately before staging and eventual promotion begin.
+        validate_output_paths(out, work_dir=work, repo_root=repo, source_root=repo)
+        return _build_locked(
+            repo, out, work, reuse=reuse, limit=limit, source_ref=source_ref,
+            source_repo=source_repo, chm_source_url_base=chm_source_url_base,
+        )
+
+
+def _path_overlaps(left: Path, right: Path) -> bool:
+    return left == right or left in right.parents or right in left.parents
+
+
+def _validate_diagnostics_path(
+    diagnostics: Path | str,
+    *,
+    repo: Path,
+    out: Path,
+    work: Path,
+) -> Path:
+    """Validate an external diagnostics destination before creating anything."""
+    lexical = Path(os.path.abspath(os.fspath(Path(diagnostics).expanduser())))
+    resolved = lexical.resolve(strict=False)
+    if resolved == Path(resolved.anchor):
+        raise OutputPathError(f"refusing filesystem root as diagnostics: {resolved}")
+    if lexical.is_symlink() or (lexical.exists() and not lexical.is_file()):
+        raise OutputPathError(f"refusing non-regular diagnostics path: {lexical}")
+    # Existing symlinked parents can redirect an apparently external path into
+    # a protected tree.  Missing parents are created only after this check.
+    current = lexical.parent
+    while current != Path(current.anchor):
+        if current.is_symlink() or (
+            current.exists() and getattr(current, "is_junction", lambda: False)()
+        ):
+            raise OutputPathError(f"refusing symlink/junction in diagnostics parent: {current}")
+        current = current.parent
+    protected = {
+        "repository": Path(repo).resolve(strict=False),
+        "output": Path(out).resolve(strict=False),
+        "work": Path(work).resolve(strict=False),
+    }
+    for label, root in protected.items():
+        if _path_overlaps(resolved, root):
+            raise OutputPathError(f"diagnostics must not overlap {label}: {resolved}")
+    return resolved
+
+
+def _sanitize_diagnostic_value(value: object, roots: dict[str, Path]) -> object:
+    """Remove run-specific absolute paths while preserving report structure."""
+    if isinstance(value, dict):
+        return {key: _sanitize_diagnostic_value(item, roots) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_sanitize_diagnostic_value(item, roots) for item in value]
+    if isinstance(value, tuple):
+        return [_sanitize_diagnostic_value(item, roots) for item in value]
+    if not isinstance(value, str):
+        return value
+    sanitized = value
+    for label, root in sorted(roots.items(), key=lambda item: len(str(item[1])), reverse=True):
+        for spelling in (str(root), str(root).replace("\\", "/")):
+            sanitized = sanitized.replace(spelling, f"<{label}>")
+    sanitized = re.sub(r"\.output-(?:stage|backup)-[0-9A-Za-z-]+", ".output-<temporary>", sanitized)
+    return sanitized
+
+
+def _write_diagnostics(path: Path, report: dict, *, roots: dict[str, Path]) -> None:
+    """Atomically write a stable report without exposing staging filenames."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    stable_report = _sanitize_diagnostic_value(report, roots)
+    payload = json.dumps(stable_report, indent=2, ensure_ascii=False, sort_keys=True) + "\n"
+    fd, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
+    temporary_path = Path(temporary)
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.replace(temporary_path, path)
+    finally:
+        if temporary_path.exists():
+            temporary_path.unlink()
+
+
+def build(repo: Path, out: Path, work: Path, *, reuse: bool = False,
+          limit: int = 0, source_ref: str = "develop",
+          source_repo: str = DEFAULT_SOURCE_REPO,
+          chm_source_url_base: str = DEFAULT_CHM_SOURCE_URL_BASE,
+          diagnostics: Path | str | None = None) -> dict:
+    """Build a corpus and optionally persist diagnostics outside generated trees."""
+    repo_path, out_path, work_path = (
+        Path(repo).resolve(), Path(out).resolve(), Path(work).resolve()
+    )
+    diagnostics_path = (
+        _validate_diagnostics_path(
+            diagnostics, repo=repo_path, out=out_path, work=work_path
+        )
+        if diagnostics is not None else None
+    )
+    try:
+        result = _build(
+            repo_path, out_path, work_path, reuse=reuse, limit=limit,
+            source_ref=source_ref, source_repo=source_repo,
+            chm_source_url_base=chm_source_url_base,
+        )
+    except Exception as exc:
+        if diagnostics_path is not None:
+            _write_diagnostics(
+                diagnostics_path,
+                Report([make_issue("unknown_issue", f"{type(exc).__name__}: {exc}")]).as_dict(),
+                roots={"repo": repo_path, "out": out_path, "work": work_path},
+            )
+        raise
+    if diagnostics_path is not None:
+        _write_diagnostics(
+            diagnostics_path,
+            result["report"],
+            roots={"repo": repo_path, "out": out_path, "work": work_path},
+        )
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--repo", default=".", type=Path)
@@ -234,13 +345,15 @@ def main() -> int:
     parser.add_argument("--source-ref", default="develop")
     parser.add_argument("--source-repo", default=DEFAULT_SOURCE_REPO)
     parser.add_argument("--chm-source-url-base", default=DEFAULT_CHM_SOURCE_URL_BASE)
+    parser.add_argument("--diagnostics", default=None, type=Path)
     args = parser.parse_args()
     repo = args.repo.resolve()
     work = (args.work or repo / ".chm-work").resolve()
     result = build(repo, args.out.resolve(), work, reuse=args.reuse,
                    limit=args.limit, source_ref=args.source_ref,
                    source_repo=args.source_repo,
-                   chm_source_url_base=args.chm_source_url_base)
+                   chm_source_url_base=args.chm_source_url_base,
+                   diagnostics=args.diagnostics)
     print(Report(Issue(**{key: value for key, value in item.items()
                           if key in {"code", "message", "path", "fatal", "provenance", "detail"}})
                  for item in result["report"].get("issues", [])).to_console())

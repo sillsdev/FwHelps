@@ -107,7 +107,7 @@ def parse_toc(path: Path) -> list[dict]:
     for entry in parser.entries:
         params = dict(entry["params"])
         title = html.unescape(params.get("name", "")).strip()
-        local = unquote(params.get("local", "")).replace("\\", "/").strip()
+        local = unquote(html.unescape(params.get("local", ""))).replace("\\", "/").strip()
         href = urldefrag(local)[0] if local else ""
         depth = entry["depth"]
         trail[depth] = title

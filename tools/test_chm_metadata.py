@@ -37,6 +37,17 @@ class ChmMetadataTests(unittest.TestCase):
         self.assertEqual(["Root"], nodes[0]["breadcrumb"])
         self.assertEqual(["Root", "Child"], nodes[1]["breadcrumb"])
 
+    def test_parse_toc_accepts_reversed_casefolded_param_attributes_and_escaped_local(self):
+        with tempfile.TemporaryDirectory() as raw:
+            path = Path(raw) / "book.hhc"
+            path.write_text(
+                "<ul><li><object><param VALUE='Texts_&amp;_Words.htm' data-x='1' "
+                "NaMe='nAmE'><param value='Texts_%26_Words.htm' name='LOCAL'>"
+                "</object></li></ul>", encoding="cp1252"
+            )
+            nodes = parse_toc(path)
+        self.assertEqual("Texts_&_Words.htm", nodes[0]["href"])
+
 
 if __name__ == "__main__":
     unittest.main()

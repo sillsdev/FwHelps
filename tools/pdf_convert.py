@@ -25,19 +25,40 @@ import argparse
 import collections
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
 import tempfile
 import unicodedata
+from collections.abc import Mapping
 from pathlib import Path
 from urllib.parse import quote, urlsplit, urlunsplit
 
 import pymupdf as fitz  # "fitz" name is deprecated; alias keeps call sites short
 import pymupdf4llm
+from frontmatter import yaml_scalar
+from output_fs import export_locks
 from pymupdf4llm.helpers.pymupdf_rag import TocHeaders
+from reporting import Report, make_issue
+from source_safety import discover_source_files, first_link_in_path
 
 OUTLINES = Path(__file__).parent / "pdf_outlines.json"
+_WINDOWS_RESERVED_BASENAMES = {
+    "CON", "PRN", "AUX", "NUL",
+    *(f"COM{i}" for i in range(1, 10)),
+    *(f"LPT{i}" for i in range(1, 10)),
+}
+
+
+def _slug_component(part: str) -> str:
+    value = part.replace(" ", "_")
+    value = re.sub(r'[<>:"|?*\\]', "_", value)
+    while value.endswith((".", " ")):
+        value = value[:-1] + "_"
+    if value.split(".", 1)[0].rstrip(" .").upper() in _WINDOWS_RESERVED_BASENAMES:
+        value = "_" + value
+    return value or "_"
 
 
 def slug_path(rel: str) -> str:
@@ -48,7 +69,7 @@ def slug_path(rel: str) -> str:
     the one it writes into. Underscores throughout also keep the URLs clean and
     match the CHM side of the export, which RoboHelp already names that way.
     """
-    return "/".join(part.replace(" ", "_") for part in rel.split("/"))
+    return "/".join(_slug_component(part) for part in rel.split("/"))
 
 
 def clean(text: str) -> str:
@@ -600,11 +621,6 @@ def convert_pdf(pdf: Path, out_md: Path, image_dir: Path) -> tuple[str, str, lis
 
 
 def frontmatter(fields: dict) -> str:
-    def esc(v):
-        if isinstance(v, (int, float)) and not isinstance(v, bool):
-            return str(v)
-        return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
-
     lines = ["---"]
 
     def emit(k, v, indent=""):
@@ -617,12 +633,9 @@ def frontmatter(fields: dict) -> str:
         elif isinstance(v, list):
             lines.append(f"{indent}{k}:")
             for item in v:
-                if isinstance(item, (dict, list)):
-                    lines.append(f"{indent}  - {esc(item)}")
-                else:
-                    lines.append(f"{indent}  - {esc(item)}")
+                lines.append(f"{indent}  - {yaml_scalar(item)}")
         else:
-            lines.append(f"{indent}{k}: {esc(v)}")
+            lines.append(f"{indent}{k}: {yaml_scalar(v)}")
 
     for k, v in fields.items():
         emit(k, v)
@@ -630,19 +643,143 @@ def frontmatter(fields: dict) -> str:
 
 
 PDF_MANIFEST = ".pdf-converter-manifest.json"
+PDF_MANIFEST_SCHEMA = 2
+
+
+class ManifestError(ValueError):
+    """A PDF manifest is malformed or does not describe canonical outputs."""
+
+
+def _validate_lock_path(path: Path) -> Path:
+    """Reject linked or parent-traversing lock paths before any lock I/O."""
+    path = Path(path)
+    if ".." in path.parts:
+        raise ManifestError(f"unsafe lock path: {path}")
+    if first_link_in_path(path) is not None:
+        raise ManifestError(f"lock path contains symlink/junction: {path}")
+    return path
+
+
+def _manifest_pairs(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ManifestError(f"duplicate manifest key: {key!r}")
+        result[key] = value
+    return result
+
+
+def _safe_manifest_relative(value: object, label: str) -> str:
+    if (not isinstance(value, str) or not value or "\\" in value
+            or "\x00" in value or ":" in value):
+        raise ManifestError(f"unsafe {label} path: {value!r}")
+    if any(ord(char) < 32 for char in value):
+        raise ManifestError(f"unsafe {label} path: {value!r}")
+    path = Path(value)
+    if value.startswith(("/", "\\")) or path.drive:
+        raise ManifestError(f"absolute {label} path: {value!r}")
+    parts = value.split("/")
+    if any(part in {"", ".", ".."} for part in parts):
+        raise ManifestError(f"traversal {label} path: {value!r}")
+    return value
+
+
+def _manifest_destinations(source: str) -> tuple[str, str]:
+    if not source.casefold().endswith(".pdf"):
+        raise ManifestError(f"manifest source is not a PDF: {source!r}")
+    rel_dest = slug_path(source)[:-4] + ".md"
+    rel_images = (Path(rel_dest).parent / (Path(rel_dest).stem + "_images")).as_posix()
+    return rel_dest, rel_images
+
+
+def _ownership_key(relative: str) -> str:
+    """Return the host filesystem's normalized key for a safe relative path."""
+    return os.path.normcase(os.path.normpath(relative))
+
+
+def validate_manifest(manifest: Mapping, out: Path, *,
+                      authenticated_images: set[str] | None = None) -> dict[str, dict]:
+    """Validate a complete schema-2 manifest before any output mutation."""
+    if not isinstance(manifest, dict) or set(manifest) != {"schema", "files"}:
+        raise ManifestError("manifest must contain exactly schema and files")
+    if type(manifest["schema"]) is not int or manifest["schema"] != PDF_MANIFEST_SCHEMA:
+        raise ManifestError("unsupported PDF manifest schema")
+    files = manifest["files"]
+    if not isinstance(files, dict):
+        raise ManifestError("manifest files must be an object")
+    root = Path(os.path.abspath(os.fspath(out)))
+    authenticated_image_keys = {
+        _ownership_key(value) for value in (authenticated_images or set())
+        if isinstance(value, str)
+    }
+    seen_sources: set[str] = set()
+    seen_destinations: set[str] = set()
+    normalized: dict[str, dict] = {}
+    for source, entry in files.items():
+        source = _safe_manifest_relative(source, "source")
+        source_key = source.casefold()
+        if source_key in seen_sources:
+            raise ManifestError(f"case-colliding manifest source: {source!r}")
+        seen_sources.add(source_key)
+        if not isinstance(entry, dict) or set(entry) != {"markdown", "images"}:
+            raise ManifestError(f"invalid manifest entry for {source!r}")
+        expected_markdown, expected_images = _manifest_destinations(source)
+        markdown = _safe_manifest_relative(entry["markdown"], "markdown")
+        if markdown != expected_markdown:
+            raise ManifestError(f"markdown destination mismatch for {source!r}")
+        images = entry["images"]
+        if images is not None:
+            images = _safe_manifest_relative(images, "images")
+            if images != expected_images:
+                raise ManifestError(f"images destination mismatch for {source!r}")
+        elif first_link_in_path(root / expected_images) is not None:
+            raise ManifestError(f"images destination contains symlink/junction: {source!r}")
+        elif (root / expected_images).exists() and _ownership_key(expected_images) not in authenticated_image_keys:
+            raise ManifestError(f"null images destination has existing output: {source!r}")
+        for destination in (markdown, images):
+            if destination is None:
+                continue
+            key = destination.casefold()
+            if key in seen_destinations:
+                raise ManifestError(f"case-colliding manifest destination: {destination!r}")
+            seen_destinations.add(key)
+            if first_link_in_path(root / destination) is not None:
+                raise ManifestError(f"manifest destination contains symlink/junction: {destination!r}")
+            if _owned_path(root, destination) is None:
+                raise ManifestError(f"manifest destination escapes output root: {destination!r}")
+        normalized[source] = {"markdown": markdown, "images": images}
+    return normalized
+
+
+def _load_manifest(path: Path, out: Path) -> tuple[dict, dict[str, dict]]:
+    if first_link_in_path(path) is not None:
+        raise ManifestError("PDF manifest path contains symlink/junction")
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_manifest_pairs)
+    except ManifestError:
+        raise
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise ManifestError(f"cannot read PDF manifest: {exc}") from exc
+    return manifest, validate_manifest(manifest, out)
+
+
+def _normalize_root(path: Path) -> Path:
+    """Normalize lexical ``..`` segments without resolving symlinks."""
+    return Path(os.path.normpath(os.fspath(Path(path).expanduser())))
 
 
 def discover_pdfs(repo: Path) -> list[Path]:
     """Discover PDF inputs independent of filename case on the host OS."""
-    return sorted(
-        p for p in repo.rglob("*")
-        if p.is_file() and p.suffix.lower() == ".pdf" and ".git" not in p.parts
+    repo = _normalize_root(repo)
+    return discover_source_files(
+        repo, suffixes={".pdf"}, recursive=True, exclude_dirs={".git"}
     )
 
 
 def destination_collisions(repo: Path, out: Path,
                            pdfs: list[Path] | None = None) -> list[tuple[str, list[str]]]:
     """Find PDFs whose normalized destination path is claimed more than once."""
+    repo = _normalize_root(repo)
     pdfs = pdfs if pdfs is not None else discover_pdfs(repo)
     claimed: dict[str, tuple[str, list[str]]] = {}
     for pdf in pdfs:
@@ -660,14 +797,90 @@ def destination_collisions(repo: Path, out: Path,
 
 
 def _owned_path(out: Path, relative: str) -> Path | None:
-    """Resolve a manifest path only when it remains inside the output root."""
-    candidate = (out / relative).resolve()
-    root = out.resolve()
+    """Return a lexical in-root path, refusing link chains."""
+    candidate = Path(os.path.abspath(os.fspath(Path(out) / relative)))
+    root = Path(os.path.abspath(os.fspath(out)))
+    if first_link_in_path(candidate) is not None:
+        raise ManifestError(f"manifest path contains symlink/junction: {relative!r}")
     try:
         candidate.relative_to(root)
     except ValueError:
         return None
     return candidate
+
+
+def _validate_regular_file(path: Path, label: str) -> None:
+    if first_link_in_path(path) is not None or not path.exists() or not path.is_file():
+        raise ManifestError(f"{label} must be an existing regular non-link file: {path}")
+
+
+def _validate_clean_directory(path: Path, label: str) -> None:
+    if first_link_in_path(path) is not None or not path.exists() or not path.is_dir():
+        raise ManifestError(f"{label} must be an existing non-link directory: {path}")
+    pending = [path]
+    while pending:
+        current = pending.pop()
+        try:
+            entries = list(os.scandir(current))
+        except OSError as exc:
+            raise ManifestError(f"cannot inspect {label}: {current}") from exc
+        for entry in entries:
+            child = Path(entry.path)
+            if first_link_in_path(child) is not None:
+                raise ManifestError(f"{label} contains symlink/junction: {child}")
+            if entry.is_dir(follow_symlinks=False):
+                pending.append(child)
+            elif not entry.is_file(follow_symlinks=False):
+                raise ManifestError(f"{label} contains non-regular entry: {child}")
+
+
+def _validate_manifest_outputs(out: Path, stage: Path,
+                               previous: dict[str, dict], current: dict[str, dict]) -> None:
+    """Validate all filesystem objects before staging or replacing anything."""
+    for files in previous.values():
+        if not isinstance(files, dict):
+            continue
+        markdown = files.get("markdown")
+        if isinstance(markdown, str):
+            path = _owned_path(out, markdown)
+            if path is None:
+                raise ManifestError(f"prior markdown escapes output: {markdown!r}")
+            _validate_regular_file(path, "prior markdown")
+        images = files.get("images")
+        if isinstance(images, str):
+            path = _owned_path(out, images)
+            if path is None:
+                raise ManifestError(f"prior images escape output: {images!r}")
+            _validate_clean_directory(path, "prior images")
+
+    prior_path_keys = {
+        _ownership_key(value)
+        for files in previous.values()
+        if isinstance(files, dict)
+        for value in (files.get("markdown"), files.get("images"))
+        if isinstance(value, str)
+    }
+    for files in current.values():
+        if not isinstance(files, dict):
+            continue
+        markdown = files.get("markdown")
+        if isinstance(markdown, str):
+            staged = _owned_path(stage, markdown)
+            if staged is None:
+                raise ManifestError(f"current markdown escapes stage: {markdown!r}")
+            _validate_regular_file(staged, "current staged markdown")
+            target = _owned_path(out, markdown)
+            if target is not None and target.exists() and _ownership_key(markdown) not in prior_path_keys:
+                raise FileExistsError(f"PDF destination is not converter-owned: {markdown}")
+        images = files.get("images")
+        if isinstance(images, str):
+            staged = _owned_path(stage, images)
+            if staged is None:
+                raise ManifestError(f"current images escape stage: {images!r}")
+            _validate_clean_directory(staged, "current staged images")
+            target = _owned_path(out, images)
+            if target is not None and target.exists() and _ownership_key(images) not in prior_path_keys:
+                raise FileExistsError(f"PDF destination is not converter-owned: {images}")
 
 
 def _remove_owned_entry(out: Path, files: dict) -> None:
@@ -682,20 +895,52 @@ def _remove_owned_entry(out: Path, files: dict) -> None:
             path.unlink()
 
 
-def promote_pdf_outputs(out: Path, stage: Path,
+def _promote_pdf_outputs_locked(out: Path, stage: Path,
                         previous: dict, current: dict,
                         lock_path: Path | None = None,
                         fresh: dict | None = None) -> None:
     """Replace the complete converter-owned PDF set from a finished stage."""
+    out = Path(out)
+    if lock_path is not None:
+        lock_path = _validate_lock_path(lock_path)
+    manifest_path = out / PDF_MANIFEST
+    # Validate the on-disk manifest before even creating a backup. The caller's
+    # parsed view is also checked so a stale/tampered in-memory view cannot
+    # authorize a different deletion set.
+    if first_link_in_path(manifest_path) is not None:
+        raise ManifestError("PDF manifest path contains symlink/junction")
+    if manifest_path.exists():
+        _, actual_previous = _load_manifest(manifest_path, out)
+        if previous != actual_previous:
+            raise ManifestError("previous PDF manifest does not match on-disk manifest")
+    else:
+        actual_previous = validate_manifest(
+            {"schema": PDF_MANIFEST_SCHEMA, "files": previous}, out
+        )
+    previous = actual_previous
+    prior_images = {
+        _ownership_key(files["images"]) for files in previous.values()
+        if isinstance(files, dict) and isinstance(files.get("images"), str)
+    }
+    validate_manifest(
+        {"schema": PDF_MANIFEST_SCHEMA, "files": current}, out,
+        authenticated_images=prior_images,
+    )
+    _validate_manifest_outputs(out, stage, previous, current)
     out.mkdir(parents=True, exist_ok=True)
     staged_manifest = stage / PDF_MANIFEST
+    if first_link_in_path(staged_manifest) is not None:
+        raise ManifestError("staged PDF manifest path contains symlink/junction")
     staged_manifest.write_text(
-        json.dumps({"files": current}, indent=1, ensure_ascii=False) + "\n",
+        json.dumps({"schema": PDF_MANIFEST_SCHEMA, "files": current}, indent=1,
+                   ensure_ascii=False) + "\n",
         encoding="utf-8",
     )
-    manifest_path = out / PDF_MANIFEST
     staged_lock = stage / ".pdf-outlines.json"
     if lock_path is not None:
+        _validate_lock_path(lock_path)
+        if first_link_in_path(staged_lock) is not None:
+            raise ManifestError("staged PDF lock path contains symlink/junction")
         staged_lock.write_text(
             json.dumps(fresh or {}, indent=1, ensure_ascii=False) + "\n",
             encoding="utf-8",
@@ -711,20 +956,14 @@ def promote_pdf_outputs(out: Path, stage: Path,
         for value in (files.get("markdown"), files.get("images"))
         if isinstance(value, str)
     }
-    for files in current.values():
-        if not isinstance(files, dict):
-            continue
-        for key in ("markdown", "images"):
-            value = files.get(key)
-            target = _owned_path(out, value) if isinstance(value, str) else None
-            if target is not None and target.exists() and value not in prior_paths:
-                raise FileExistsError(f"PDF destination is not converter-owned: {value}")
 
     backup = Path(tempfile.mkdtemp(prefix=".pdf-backup-", dir=out.parent))
     backed_up: list[tuple[str, Path]] = []
     manifest_backup = backup / PDF_MANIFEST
     had_manifest = manifest_path.exists()
     lock_backup = backup / "pdf-outlines.json"
+    if lock_path is not None:
+        _validate_lock_path(lock_path)
     had_lock = lock_path is not None and lock_path.exists()
     try:
         if had_manifest:
@@ -770,6 +1009,7 @@ def promote_pdf_outputs(out: Path, stage: Path,
                 shutil.move(str(source), str(target))
         shutil.move(str(staged_manifest), str(manifest_path))
         if lock_path is not None:
+            _validate_lock_path(lock_path)
             lock_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.move(str(staged_lock), str(lock_path))
     except Exception:
@@ -800,6 +1040,27 @@ def promote_pdf_outputs(out: Path, stage: Path,
         raise
     finally:
         shutil.rmtree(backup, ignore_errors=True)
+
+
+def promote_pdf_outputs(out: Path, stage: Path,
+                        previous: dict, current: dict,
+                        lock_path: Path | None = None,
+                        fresh: dict | None = None) -> None:
+    """Promote PDF output while serializing direct destination mutation."""
+    out = Path(out)
+    if lock_path is not None:
+        # Keep the same output-then-global order as ``run`` when updating the
+        # shared outline lock.  The locked implementation is used internally
+        # by ``run`` to avoid recursive acquisition.
+        with export_locks(out, OUTLINES):
+            _promote_pdf_outputs_locked(
+                out, stage, previous, current, lock_path=lock_path, fresh=fresh,
+            )
+    else:
+        with export_locks(out):
+            _promote_pdf_outputs_locked(
+                out, stage, previous, current, lock_path=lock_path, fresh=fresh,
+            )
 
 
 def _source_url(rel: str, resolver=None) -> str:
@@ -864,7 +1125,7 @@ def source_replacement_details(text: str) -> dict | None:
     }
 
 
-def run(repo: Path, out: Path, update: bool, source_url=None,
+def _run_locked(repo: Path, out: Path, update: bool, source_url=None,
         source_ref=None) -> tuple[dict, list[str]]:
     """Convert all PDFs, with ``source_url`` as the repository policy seam.
 
@@ -872,8 +1133,10 @@ def run(repo: Path, out: Path, update: bool, source_url=None,
     a callable receiving the repository-relative PDF path. ``source_ref`` is a
     backwards-compatible alias for callers that prefer that terminology.
     """
+    repo = _normalize_root(repo)
     if source_ref is not None:
         source_url = source_ref
+    _validate_lock_path(OUTLINES)
     pins = json.loads(OUTLINES.read_text(encoding="utf-8")) if OUTLINES.exists() else {}
     fresh: dict[str, dict] = {}
     report: dict[str, list] = collections.defaultdict(list)
@@ -889,12 +1152,10 @@ def run(repo: Path, out: Path, update: bool, source_url=None,
     out.parent.mkdir(parents=True, exist_ok=True)
     previous: dict = {}
     manifest_path = out / PDF_MANIFEST
+    if first_link_in_path(manifest_path) is not None:
+        raise ManifestError("PDF manifest path contains symlink/junction")
     if manifest_path.exists():
-        try:
-            loaded = json.loads(manifest_path.read_text(encoding="utf-8"))
-            previous = loaded.get("files", loaded) if isinstance(loaded, dict) else {}
-        except (OSError, json.JSONDecodeError):
-            previous = {}
+        _, previous = _load_manifest(manifest_path, out)
     current: dict = {}
     stage = Path(tempfile.mkdtemp(prefix=".pdf-convert-", dir=out.parent))
 
@@ -961,14 +1222,16 @@ def run(repo: Path, out: Path, update: bool, source_url=None,
             })
             dest.write_text(f"{fm}\n\n# {title}\n\n{body}",
                             encoding="utf-8")
-            current[rel] = {
-                "markdown": rel_dest,
-                "images": (Path(rel_dest).parent / (Path(rel_dest).stem + "_images")).as_posix(),
-            }
-
             n_img = len(list(images.glob("*"))) if images.exists() else 0
             if not n_img and images.exists():
                 images.rmdir()
+            current[rel] = {
+                "markdown": rel_dest,
+                "images": (
+                    (Path(rel_dest).parent / (Path(rel_dest).stem + "_images")).as_posix()
+                    if n_img else None
+                ),
+            }
             lines.append(f"  {strategy:<22} {len(outline):>3} hdrs  {n_img:>4} img  {rel}")
 
         # No final output or manifest is touched until every PDF and every lock
@@ -978,7 +1241,7 @@ def run(repo: Path, out: Path, update: bool, source_url=None,
         fatal = (report.get("pdf_failures") or lock_fatal
                  or report.get("pdf_export_replacements"))
         if not fatal and not report.get("pdf_failures"):
-            promote_pdf_outputs(
+            _promote_pdf_outputs_locked(
                 out, stage, previous, current,
                 lock_path=OUTLINES if update else None,
                 fresh=fresh if update else None,
@@ -989,6 +1252,35 @@ def run(repo: Path, out: Path, update: bool, source_url=None,
         shutil.rmtree(stage, ignore_errors=True)
 
     return {"converted": len(fresh), "report": dict(report), "lines": lines}, lines
+
+
+def run(repo: Path, out: Path, update: bool, source_url=None,
+        source_ref=None) -> tuple[dict, list[str]]:
+    """Convert PDFs under output-then-global-outline locks.
+
+    The global outline lock covers the pinned-outline read and any update
+    promotion, including the interval between those operations.
+    """
+    out = Path(out)
+    with export_locks(out, OUTLINES):
+        return _run_locked(
+            repo, out, update, source_url=source_url, source_ref=source_ref,
+        )
+
+
+def _canonical_report(producer_report: dict) -> Report:
+    """Render producer findings through the shared issue catalog."""
+    issues = []
+    for code, entries in producer_report.items():
+        for item in entries if isinstance(entries, list) else [entries]:
+            if isinstance(item, (list, tuple)) and item:
+                path = str(item[0])
+                message = str(item[1]) if len(item) > 1 else ""
+            else:
+                path = ""
+                message = str(item)
+            issues.append(make_issue(code, message, path, item))
+    return Report(issues)
 
 
 def main() -> int:
@@ -1003,17 +1295,9 @@ def main() -> int:
     print("\n".join(lines))
     rep = result["report"]
     print(f"\nconverted {result['converted']} PDFs")
-    for k in ("pdf_failures", "outline_drift", "outline_unpinned",
-              "pdf_export_replacements", "pdf_source_replacements",
-              "destination_collisions", "html_tables_kept"):
-        v = rep.get(k, [])
-        print(f"  {k:<20} {len(v)}")
-        for item in v[:5]:
-            print(f"      {item}")
-    return 1 if (rep.get("pdf_failures") or rep.get("outline_drift")
-                 or rep.get("outline_unpinned")
-                 or rep.get("pdf_export_replacements")
-                 or rep.get("destination_collisions")) else 0
+    canonical = _canonical_report(rep)
+    print(canonical.to_console())
+    return 1 if canonical.fatal else 0
 
 
 if __name__ == "__main__":

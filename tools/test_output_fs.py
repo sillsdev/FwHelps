@@ -4,7 +4,13 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from output_fs import OutputPathError, OutputStaging
+from output_fs import (
+    ExportBusyError,
+    ExportLock,
+    OutputPathError,
+    OutputStaging,
+    export_locks,
+)
 
 
 class OutputStagingSafetyTests(unittest.TestCase):
@@ -126,6 +132,98 @@ class OutputStagingSafetyTests(unittest.TestCase):
             self.assertEqual("keep", (destination / "keep.txt").read_text(encoding="utf-8"))
             self.assertFalse((destination / "discarded.txt").exists())
             self.assertFalse(any(p.name.startswith(".output-stage-") for p in work.iterdir()))
+
+
+class ExportLockTests(unittest.TestCase):
+    def test_lock_rejects_another_invocation_for_same_destination(self):
+        with tempfile.TemporaryDirectory() as raw:
+            destination = Path(raw) / "output"
+            with ExportLock(destination) as held:
+                with self.assertRaisesRegex(ExportBusyError, "export destination is busy"):
+                    ExportLock(destination).acquire()
+                self.assertEqual(held.lock_path, ExportLock(destination).lock_path)
+
+    def test_different_destinations_do_not_contend(self):
+        with tempfile.TemporaryDirectory() as raw:
+            first = Path(raw) / "first"
+            second = Path(raw) / "second"
+            with ExportLock(first), ExportLock(second):
+                pass
+
+    def test_exception_releases_lock(self):
+        with tempfile.TemporaryDirectory() as raw:
+            destination = Path(raw) / "output"
+            with self.assertRaises(RuntimeError), ExportLock(destination):
+                raise RuntimeError("failure")
+            with ExportLock(destination):
+                pass
+
+    def test_stale_lockfile_does_not_block_acquisition(self):
+        with tempfile.TemporaryDirectory() as raw:
+            destination = Path(raw) / "output"
+            lock = ExportLock(destination)
+            lock.lock_path.write_text("stale owner metadata\n", encoding="utf-8")
+            with ExportLock(destination):
+                pass
+            self.assertEqual("stale owner metadata\n", lock.lock_path.read_text(encoding="utf-8"))
+
+    def test_linked_lock_parent_is_rejected_before_open(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            real = root / "real"
+            real.mkdir()
+            linked = root / "linked"
+            try:
+                linked.symlink_to(real, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("directory links are unavailable")
+            with self.assertRaises(OutputPathError):
+                ExportLock(linked / "output").acquire()
+
+    def test_export_locks_deduplicates_targets_and_releases_partial_acquisition(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first, second = root / "first", root / "second"
+            with (
+                ExportLock(second),
+                self.assertRaises(ExportBusyError),
+                export_locks(first, second, first),
+            ):
+                pass
+            with export_locks(first, first) as locks:
+                self.assertEqual(1, len(locks))
+            with ExportLock(first):
+                pass
+
+    def test_export_locks_uses_stable_order_for_reversed_targets(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first, second = root / "first", root / "second"
+            expected = sorted(
+                (
+                    os.path.normcase(os.path.normpath(os.path.abspath(os.fspath(first)))),
+                    os.path.normcase(os.path.normpath(os.path.abspath(os.fspath(second)))),
+                )
+            )
+            with export_locks(second, first) as locks:
+                actual = [
+                    os.path.normcase(os.path.normpath(os.fspath(lock.destination)))
+                    for lock in locks
+                ]
+                self.assertEqual(expected, actual)
+
+    def test_reversed_contention_releases_any_lock_acquired_before_busy_target(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            first, second = root / "first", root / "second"
+            with (
+                ExportLock(first),
+                self.assertRaises(ExportBusyError),
+                export_locks(second, first),
+            ):
+                pass
+            with ExportLock(second):
+                pass
 
 
 if __name__ == "__main__":

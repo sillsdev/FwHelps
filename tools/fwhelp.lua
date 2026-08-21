@@ -38,6 +38,34 @@ local ALERT_MAP = {
   Warning = "WARNING", Caution = "CAUTION",
 }
 
+local function uri_kind(target)
+  local path = tostring(target or "")
+  path = path:gsub("%%([0-9A-Fa-f][0-9A-Fa-f])", function(hex)
+    return string.char(tonumber(hex, 16))
+  end)
+  path = path:gsub("\\", "/")
+  path = path:gsub("[%z\001-\032]", "")
+  path = path:gsub("#.*$", "")
+  if path == "" then return "fragment" end
+  if path:sub(1, 1) == "/" or path:match("^[A-Za-z]:/") then return "path_escape" end
+  local scheme = path:match("^([A-Za-z][A-Za-z0-9+%%.-]*):")
+  if scheme then
+    scheme = scheme:lower()
+    if scheme == "http" or scheme == "https" or scheme == "mailto" then return "external" end
+    return "unsafe_uri"
+  end
+  return "local"
+end
+
+local function neutralize_uri(target)
+  local kind = uri_kind(target)
+  if kind == "unsafe_uri" or kind == "path_escape" then
+    io.stderr:write("FWHELP_" .. kind:upper() .. " " .. tostring(target) .. "\n")
+    return "#"
+  end
+  return target
+end
+
 local function text_of(inlines)
   -- gsub returns (string, count); returning it directly would pass the count
   -- as pandoc.Code's second argument, which it reads as an Attr.
@@ -50,6 +78,13 @@ end
 --- Collapse authored character styles into real markdown emphasis.
 function Span(el)
   if #el.classes == 0 then return el.content end
+  -- Inventory every authored class before applying a supported transform.
+  -- A span may carry both a supported class and an unknown semantic.
+  for _, cls in ipairs(el.classes) do
+    if SPAN_MAP[cls] == nil then
+      unmapped[cls] = (unmapped[cls] or 0) + 1
+    end
+  end
   for _, cls in ipairs(el.classes) do
     local kind = SPAN_MAP[cls]
     if kind == "strong" then return pandoc.Strong(el.content)
@@ -57,8 +92,6 @@ function Span(el)
     elseif kind == "code" then return pandoc.Code(text_of(el.content))
     elseif kind == "superscript" then return pandoc.Superscript(el.content)
     elseif kind == "plain" then return el.content
-    elseif kind == nil then
-      unmapped[cls] = (unmapped[cls] or 0) + 1
     end
   end
   return el.content
@@ -70,7 +103,12 @@ end
 --- no sane link regex survives. The AST has the target as a plain string.
 function Link(el)
   local t = el.target
-  if t == "" or t:sub(1, 1) == "#" or t:match("^%a[%w+.%-]*:") then return el end
+  local kind = uri_kind(t)
+  if kind == "unsafe_uri" or kind == "path_escape" then
+    el.target = neutralize_uri(t)
+    return el
+  end
+  if kind == "fragment" or kind == "external" then return el end
   local path, frag = t:match("^([^#]*)(.*)$")
   local rewritten, n = path:gsub("%.html?$", ".md")
   if n > 0 then el.target = rewritten .. frag end
@@ -89,6 +127,7 @@ function Image(el)
   if src:lower():match("note[_-]?icon%.gif") then
     return pandoc.List()
   end
+  el.src = neutralize_uri(src)
   el.attr = pandoc.Attr()
   return el
 end

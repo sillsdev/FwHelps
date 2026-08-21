@@ -5,26 +5,11 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass
+from types import MappingProxyType
 
-LABELS = {
-    "missing_link": "Missing local link",
-    "missing_image": "Missing local image",
-    "duplicate_title": "Duplicate display title",
-    "malformed_list": "Malformed nested list",
-    "replacement_character": "Replacement character",
-    "raw_html": "Raw HTML retained",
-    "one_h1": "Invalid H1 count",
-    "destination_collision": "Destination collision",
-    "pandoc_failure": "Pandoc conversion failure",
-    "unmapped_span": "Unmapped span class",
-    "pdf_failure": "PDF conversion failure",
-    "outline_drift": "PDF outline drift",
-    "outline_unpinned": "PDF outline unpinned",
-    "stale_toc_entries": "Stale TOC entry",
-    "not_in_toc": "Topic missing from TOC",
-    "chm_failure": "CHM conversion failure",
-    "chm_discovery": "CHM discovery failure",
-}
+from issue_catalog import ISSUE_CATALOG, policy_for
+
+LABELS = MappingProxyType({code: policy.label for code, policy in ISSUE_CATALOG.items()})
 
 
 @dataclass(frozen=True)
@@ -32,9 +17,21 @@ class Issue:
     code: str
     message: str
     path: str = ""
-    fatal: bool = False
-    provenance: str = "exporter"
+    fatal: bool | None = None
+    provenance: str | None = None
     detail: object = None
+
+    def __post_init__(self) -> None:
+        original_code = self.code
+        code, policy = policy_for(original_code)
+        unknown = code == "unknown_issue" and original_code != code
+        if unknown:
+            object.__setattr__(self, "message", f"[{original_code}] {self.message}")
+        object.__setattr__(self, "code", code)
+        # The legacy constructor accepts these fields for source compatibility,
+        # but policy is always selected solely by the catalog code.
+        object.__setattr__(self, "fatal", policy.fatal)
+        object.__setattr__(self, "provenance", policy.provenance)
 
     @property
     def severity(self) -> str:
@@ -42,7 +39,7 @@ class Issue:
 
     @property
     def label(self) -> str:
-        return LABELS.get(self.code, self.code.replace("_", " ").title())
+        return ISSUE_CATALOG[self.code].label
 
     def as_dict(self) -> dict:
         value = asdict(self)
@@ -128,4 +125,9 @@ class Report:
         return "\n".join(lines)
 
 
-__all__ = ["LABELS", "Issue", "Report"]
+def make_issue(code: str, message: str, path: str = "", detail: object = None) -> Issue:
+    """Construct an issue using the catalog, safely handling new producer codes."""
+    return Issue(str(code), str(message), str(path), detail=detail)
+
+
+__all__ = ["LABELS", "Issue", "Report", "make_issue"]

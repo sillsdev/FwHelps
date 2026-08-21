@@ -40,7 +40,7 @@ class CorpusValidationTests(unittest.TestCase):
             )
             (root / "two.md").write_text("# Same\n", encoding="utf-8")
             issues = validate_corpus(root, advisory_links={("one.md", "missing.htm")})
-        self.assertTrue(any(i.code == "missing_link" and not i.fatal for i in issues))
+        self.assertTrue(any(i.code == "source_missing_link" and not i.fatal for i in issues))
         self.assertTrue(any(i.code == "duplicate_title" for i in issues))
 
     def test_unallowlisted_link_is_fatal_even_when_source_metadata_exists(self):
@@ -89,7 +89,8 @@ class CorpusValidationTests(unittest.TestCase):
             (root / "source.md").write_text("# Source\n\ufffd\n", encoding="utf-8")
             (root / "generated.md").write_text("# Generated\n\ufffd\n", encoding="utf-8")
             issues = validate_corpus(root, source_replacement_paths={"source.md"})
-        by_path = {issue.path: issue for issue in issues if issue.code == "replacement_character"}
+        by_path = {issue.path: issue for issue in issues
+                   if issue.code in {"source_replacement_character", "replacement_character"}}
         self.assertFalse(by_path["source.md"].fatal)
         self.assertTrue(by_path["generated.md"].fatal)
 
@@ -106,7 +107,41 @@ class CorpusValidationTests(unittest.TestCase):
             root = Path(raw)
             (root / "page.md").write_text("# Page\n\n![source](missing.png)\n", encoding="utf-8")
             issues = validate_corpus(root, advisory_images={("page.md", "missing.png")})
-        self.assertTrue(any(issue.code == "missing_image" and not issue.fatal for issue in issues))
+        self.assertTrue(any(issue.code == "source_missing_image" and not issue.fatal for issue in issues))
+
+    def test_unsafe_uri_and_absolute_local_variants_are_fatal(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "page.md").write_text(
+                "# Page\n\n[j](javascript:alert(1)) [f](file:///tmp/x) "
+                "![d](data:image/png;base64,AAAA) [abs](/x) "
+                "[drive](C:\\\\x) [unc](\\\\server\\share\\x)\n",
+                encoding="utf-8",
+            )
+            issues = validate_corpus(root)
+        self.assertTrue(any(i.code == "unsafe_uri" and i.fatal for i in issues))
+        self.assertTrue(any(i.code == "path_escape" and i.fatal for i in issues))
+
+    def test_allowed_external_uri_schemes_are_not_flagged(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "page.md").write_text(
+                "# Page\n\n[https](https://example.test/x) "
+                "[http](http://example.test/x) [mail](mailto:a@example.test)\n",
+                encoding="utf-8",
+            )
+            issues = validate_corpus(root)
+        self.assertEqual([], [issue for issue in issues if issue.code in {"unsafe_uri", "path_escape"}])
+
+    def test_encoded_uri_separators_are_unsafe(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            (root / "page.md").write_text(
+                "# Page\n\n[tab](java%09script:alert(1)) "
+                "[cr](java%0dscript:alert(1))\n", encoding="utf-8"
+            )
+            issues = validate_corpus(root)
+        self.assertGreaterEqual(sum(issue.code == "unsafe_uri" for issue in issues), 2)
 
 
 if __name__ == "__main__":

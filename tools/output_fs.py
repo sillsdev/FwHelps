@@ -7,16 +7,29 @@ destination tree that it validated before promotion.
 
 from __future__ import annotations
 
+import errno
+import hashlib
 import os
 import shutil
 import tempfile
 import uuid
+from collections.abc import Iterator
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Self
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
 
 
 class OutputPathError(ValueError):
     """A requested generated path is unsafe or internally inconsistent."""
+
+
+class ExportBusyError(OutputPathError):
+    """Another cooperating exporter currently owns the destination lock."""
 
 
 def _lexical_absolute(path: Path | str) -> Path:
@@ -101,6 +114,148 @@ def validate_output_paths(
     return destination_path, work_path
 
 
+class ExportLock:
+    """A non-blocking, cooperative process lock for one output destination.
+
+    The lock is advisory: it serializes exporter invocations that use this
+    class, but cannot stop a hostile process that ignores OS file locks.  The
+    lock file is a deterministic sibling derived from the normalized
+    destination path.  It is intentionally never deleted, so an abandoned
+    (stale) lock file does not block a later acquisition.
+
+    ``ExportLock`` is non-reentrant.  Callers should acquire it once at their
+    mutation boundary and pass through to lower-level helpers without taking
+    another lock for the same destination.
+    """
+
+    _LOCK_PREFIX = ".fwhelps-export-"
+    _LOCK_SUFFIX = ".lock"
+
+    def __init__(self, destination: Path | str) -> None:
+        self.destination = _lexical_absolute(destination)
+        self.lock_path = self._lock_path(self.destination)
+        self._fd: int | None = None
+
+    @classmethod
+    def _lock_path(cls, destination: Path) -> Path:
+        normalized = os.path.normcase(os.path.normpath(os.fspath(destination)))
+        digest = hashlib.sha256(os.fsencode(normalized)).hexdigest()
+        return destination.parent / f"{cls._LOCK_PREFIX}{digest}{cls._LOCK_SUFFIX}"
+
+    @staticmethod
+    def _validate_chain(destination: Path, lock_path: Path) -> None:
+        if _is_root(destination):
+            raise OutputPathError(f"refusing filesystem root as export destination: {destination}")
+        if (link := _first_link(destination)) is not None:
+            raise OutputPathError(
+                f"refusing symlink/junction in export destination: {link}"
+            )
+
+        # Missing destination parents are safe to create only when every
+        # existing ancestor is a real directory and has no link component.
+        current = destination.parent
+        while current != Path(current.anchor):
+            if (link := _first_link(current)) is not None:
+                raise OutputPathError(f"refusing symlink/junction in export lock parent: {link}")
+            if current.exists() and not current.is_dir():
+                raise OutputPathError(f"export lock parent is not a directory: {current}")
+            current = current.parent
+
+        if (link := _first_link(lock_path)) is not None:
+            raise OutputPathError(f"refusing symlink/junction in export lock path: {link}")
+        if lock_path.exists() and not lock_path.is_file():
+            raise OutputPathError(f"export lock path is not a regular file: {lock_path}")
+
+    def acquire(self) -> Self:
+        """Acquire this destination lock without waiting for another owner."""
+        if self._fd is not None:
+            raise RuntimeError("export lock is already held")
+        self._validate_chain(self.destination, self.lock_path)
+        self.lock_path.parent.mkdir(parents=True, exist_ok=True)
+        # Revalidate after creating missing parents, before opening the lock.
+        self._validate_chain(self.destination, self.lock_path)
+        flags = os.O_CREAT | os.O_RDWR
+        if hasattr(os, "O_CLOEXEC"):
+            flags |= os.O_CLOEXEC
+        if hasattr(os, "O_NOFOLLOW"):
+            flags |= os.O_NOFOLLOW
+        try:
+            fd = os.open(self.lock_path, flags, 0o600)
+        except OSError as exc:
+            raise OutputPathError(f"cannot open export lock {self.lock_path}: {exc}") from exc
+
+        try:
+            if os.name == "nt":
+                os.lseek(fd, 0, os.SEEK_SET)
+                msvcrt.locking(fd, msvcrt.LK_NBLCK, 1)
+            else:
+                fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            os.close(fd)
+            if exc.errno in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
+                raise ExportBusyError(
+                    f"export destination is busy: {self.destination} "
+                    f"(lock: {self.lock_path})"
+                ) from exc
+            raise OutputPathError(
+                f"cannot acquire export lock {self.lock_path}: {exc}"
+            ) from exc
+        self._fd = fd
+        return self
+
+    def release(self) -> None:
+        """Release the OS lock and close this instance's handle."""
+        if self._fd is None:
+            return
+        fd, self._fd = self._fd, None
+        try:
+            try:
+                if os.name == "nt":
+                    os.lseek(fd, 0, os.SEEK_SET)
+                    msvcrt.locking(fd, msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(fd, fcntl.LOCK_UN)
+            finally:
+                os.close(fd)
+        except OSError:
+            # The handle is closed and no longer owned even if the platform
+            # reports an unlock error; do not mask the caller's exception.
+            pass
+
+    def __enter__(self) -> Self:
+        return self.acquire()
+
+    def __exit__(self, exc_type, exc_value, traceback) -> bool:
+        self.release()
+        return False
+
+
+@contextmanager
+def export_locks(*destinations: Path | str) -> Iterator[list[ExportLock]]:
+    """Acquire distinct destination locks and always unwind partial success.
+
+    Targets are deduplicated by normalized lexical path and acquired in a
+    stable platform-aware canonical absolute-path order, independent of caller
+    order. If a later lock is busy, all earlier locks are released before the
+    error escapes.
+    """
+    unique: dict[str, ExportLock] = {}
+    for destination in destinations:
+        lock = ExportLock(destination)
+        key = os.path.normcase(os.path.normpath(os.fspath(lock.destination)))
+        unique.setdefault(key, lock)
+    locks = [unique[key] for key in sorted(unique)]
+    acquired: list[ExportLock] = []
+    try:
+        for lock in locks:
+            lock.acquire()
+            acquired.append(lock)
+        yield locks
+    finally:
+        for lock in reversed(acquired):
+            lock.release()
+
+
 class OutputStaging:
     """Own a temporary generated tree and promote it as one destination.
 
@@ -108,6 +263,8 @@ class OutputStaging:
     or path-like operations to populate it, then call ``stage.promote()`` only
     after the caller's validation succeeds.  Exiting without promotion removes
     only the temporary tree and leaves an existing destination untouched.
+    ``OutputStaging`` does not acquire an ``ExportLock`` itself; callers own one
+    non-reentrant lock for the complete mutation boundary.
     """
 
     _STAGE_PREFIX = ".output-stage-"
@@ -186,4 +343,7 @@ class OutputStaging:
                 path.unlink()
 
 
-__all__ = ["OutputPathError", "OutputStaging", "validate_output_paths"]
+__all__ = [
+    "ExportBusyError", "ExportLock", "OutputPathError", "OutputStaging",
+    "export_locks", "validate_output_paths",
+]

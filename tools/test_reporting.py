@@ -6,7 +6,7 @@ from reporting import Issue, Report
 class ReportingTests(unittest.TestCase):
     def test_same_issue_catalog_renders_json_readme_and_console(self):
         report = Report()
-        report.add(Issue("missing_link", "Missing link", "page.md", fatal=False))
+        report.add(Issue("source_missing_link", "Missing link", "page.md"))
         report.add(Issue("missing_image", "Missing image", "page.md", fatal=True))
         data = report.as_dict()
         self.assertEqual(2, data["summary"]["total"])
@@ -18,7 +18,7 @@ class ReportingTests(unittest.TestCase):
         self.assertIn("Missing local image", report.to_console())
 
     def test_console_keeps_all_fatals_and_bounds_advisory_detail(self):
-        issues = [Issue("missing_link", f"advisory-{index}", "source.md")
+        issues = [Issue("source_missing_link", f"advisory-{index}", "source.md")
                   for index in range(500)]
         issues.extend(Issue("replacement_character", f"fatal-{index}", f"page-{index}.md", True)
                       for index in range(4))
