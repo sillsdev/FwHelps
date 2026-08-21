@@ -9,6 +9,7 @@ from pathlib import Path
 from unittest import mock
 
 import chm_convert
+import chm_extract
 import convert
 import source_safety
 from output_fs import ExportBusyError, ExportLock, OutputPathError
@@ -425,6 +426,36 @@ class ConvertOrchestrationTests(unittest.TestCase):
                     chm, root / "work", root / "out", reuse=True
                 )
             self.assertTrue(result["report"]["stale_toc_entries"])
+
+    def test_fresh_and_reused_extraction_preserve_the_same_advisories(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            chm = root / "Using_Help.chm"
+            chm.write_bytes(b"fixture")
+
+            def backend(_chm, outdir):
+                (outdir / "topic.htm").write_text(
+                    "<title>Topic</title><h2>Topic</h2>", encoding="cp1252"
+                )
+                (outdir / "book.hhc").write_text(
+                    '<param name="Local" value="missing.htm">', encoding="cp1252"
+                )
+                return "tool"
+
+            with mock.patch.object(chm_extract, "_sevenzip", backend), \
+                 mock.patch.object(chm_extract, "_chmlib", lambda *_: None), \
+                 mock.patch.object(chm_extract, "_hh", lambda *_: None), \
+                 mock.patch.object(chm_convert, "run_pandoc", return_value=("# Topic\n", [])):
+                fresh = chm_convert.convert_chm(chm, root / "work", root / "fresh")
+                reused = chm_convert.convert_chm(
+                    chm, root / "work", root / "reused", reuse=True
+                )
+
+            self.assertEqual(
+                fresh["report"].get("stale_toc_entries"),
+                reused["report"].get("stale_toc_entries"),
+            )
+            self.assertTrue(fresh["report"].get("stale_toc_entries"))
 
     def test_fresh_extraction_writes_authenticated_manifest_after_success(self):
         with tempfile.TemporaryDirectory() as raw:

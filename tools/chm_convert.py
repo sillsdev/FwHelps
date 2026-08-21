@@ -319,13 +319,21 @@ def _convert_chm_locked(chm: Path, work_root: Path, destination: Path, *, reuse:
         if fatal:
             raise RuntimeError("reused extraction failed validation: " + "; ".join(fatal))
     else:
+        default_extractor = extractor is extract
         if extractor is extract:
             # ``convert_chm`` already owns extraction's lock for its entire
             # read/convert lifetime; taking it again would deadlock.
             extractor = _extract_already_locked
         extractor(chm, extraction)
         validate_source_tree(extraction)
-        advisory = list(getattr(extractor, "advisory", []))
+        if default_extractor:
+            fatal, advisory = validate(extraction)
+            if fatal:
+                raise RuntimeError(
+                    "fresh extraction failed validation: " + "; ".join(fatal)
+                )
+        else:
+            advisory = list(getattr(extractor, "advisory", []))
         # ``extract`` promotes only after its staged extraction passes its
         # checks.  Record identity only after that call has returned.
         _write_extraction_manifest(extraction, chm, source_hash)
