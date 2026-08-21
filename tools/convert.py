@@ -29,6 +29,7 @@ from urllib.parse import quote, unquote, urldefrag
 sys.path.insert(0, str(Path(__file__).parent))
 from chm_extract import extract  # noqa: E402
 from survey import parse_toc  # noqa: E402
+import pdf_convert  # noqa: E402
 
 LUA = Path(__file__).parent / "fwhelp.lua"
 PUBLIC = "https://downloads.languagetechnology.org/fieldworks/Documentation/en"
@@ -167,7 +168,7 @@ def frontmatter(fields: dict) -> str:
 
 
 def write_readme(out: Path, toc: list[dict], version: str, topics: int,
-                 images: int, report: dict, source_ref: str) -> None:
+                 images: int, report: dict, source_ref: str, pdfs: int = 0) -> None:
     """README + full TOC tree. GitHub gives no sidebar, so this is the only
     navigation the branch has."""
     lines = [
@@ -179,7 +180,7 @@ def write_readme(out: Path, toc: list[dict], version: str, topics: int,
         "Adobe RoboHelp and committed here as a compiled CHM.",
         "",
         f"- **Help version:** {version}",
-        f"- **Topics:** {topics:,}   **Images:** {images:,}",
+        f"- **Topics:** {topics:,}   **Images:** {images:,}   **PDFs:** {pdfs}",
         f"- **Built from:** `{source_ref}`",
         "",
         "One markdown file per help topic, mirroring the CHM's own structure. "
@@ -199,6 +200,8 @@ def write_readme(out: Path, toc: list[dict], version: str, topics: int,
         ("not_in_toc", "Topics missing from the TOC"),
         ("oversized", "Oversized topics (>900 words)"),
         ("undersized", "Undersized topics (<60 words)"),
+        ("pdf_failures", "PDF conversion failures"),
+        ("outline_drift", "PDFs whose inferred outline drifted"),
     ]:
         lines.append(f"| {label} | {len(report.get(key, []))} |")
     lines += ["", "Full detail in [`author-report.json`](author-report.json).",
@@ -335,12 +338,19 @@ def main() -> int:
             images += 1
     tmp.unlink(missing_ok=True)
 
+    pdf_result, pdf_lines = pdf_convert.run(repo, out, update=False)
+    print("\nPDFs:")
+    print("\n".join(pdf_lines))
+    for key, items in pdf_result["report"].items():
+        report[key] = items
+
     if extraction_notes:
         report["stale_toc_entries"] = extraction_notes
     if unmapped_all:
         report["unmapped_span_classes"] = [[k, v] for k, v in unmapped_all.most_common()]
 
-    write_readme(out, toc, version, written, images, report, args.source_ref)
+    write_readme(out, toc, version, written, images, report, args.source_ref,
+                 pdf_result["converted"])
 
     (out / "author-report.json").write_text(
         json.dumps({"fw_help_version": version, "topics": written, **report}, indent=1),
@@ -349,8 +359,9 @@ def main() -> int:
     print(f"\nwrote {written} markdown files + {images} images -> {out}")
     print(f"help version {version}\n")
     print("author report:")
-    for k in ("pandoc_failures", "unmapped_span_classes", "stale_toc_entries",
-              "broken_links", "not_in_toc", "oversized", "undersized"):
+    for k in ("pandoc_failures", "unmapped_span_classes", "pdf_failures",
+              "outline_drift", "outline_unpinned", "stale_toc_entries",
+              "html_tables_kept", "broken_links", "not_in_toc", "oversized", "undersized"):
         v = report.get(k, [])
         if v:
             print(f"  {k:<24} {len(v)}")
@@ -358,7 +369,11 @@ def main() -> int:
                 print(f"      {item}")
         else:
             print(f"  {k:<24} 0")
-    return 1 if report.get("pandoc_failures") or unmapped_all else 0
+    # Build-breaking: the tooling lost or mangled content. Everything else --
+    # broken links, over/undersized topics, stale TOC entries -- is the doc
+    # author's to fix and rides along in author-report.json.
+    fatal = ("pandoc_failures", "pdf_failures", "outline_drift")
+    return 1 if any(report.get(k) for k in fatal) or unmapped_all else 0
 
 
 if __name__ == "__main__":

@@ -65,6 +65,8 @@ export is tagged `markdown-export/<tag>`.
 | [`tools/convert.py`](tools/convert.py) | CHM → markdown corpus (the build) |
 | [`tools/fwhelp.lua`](tools/fwhelp.lua) | Pandoc filter: RoboHelp semantics → clean GFM |
 | [`tools/chm_extract.py`](tools/chm_extract.py) | Cross-platform CHM extraction, with validation |
+| [`tools/pdf_convert.py`](tools/pdf_convert.py) | PDF → markdown (bookmarks or font inference) |
+| [`tools/pdf_outlines.json`](tools/pdf_outlines.json) | Pinned PDF outlines; drift fails the build |
 | [`tools/survey.py`](tools/survey.py) | Read-only census of the corpus |
 
 Local build (needs `pandoc` 3.x, and `7z` or Windows' built-in `hh.exe`):

@@ -31,7 +31,7 @@ env:
 
 jobs:
   export:
-    name: Convert CHM to markdown
+    name: Convert CHM and PDFs to markdown
     runs-on: ubuntu-latest
 
     steps:
@@ -60,7 +60,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install Python dependencies
-        run: pip install --quiet pymupdf
+        run: pip install --quiet pymupdf pymupdf4llm
 
       - name: Convert
         run: |
@@ -89,8 +89,9 @@ jobs:
           print(f"## Markdown Export — help {r.get('fw_help_version','?')}\n")
           print(f"**{r.get('topics',0):,} topics converted**\n")
           print("| Check | Count |\n| --- | ---: |")
-          for k in ("pandoc_failures", "unmapped_span_classes", "broken_links",
-                    "not_in_toc", "oversized", "undersized"):
+          for k in ("pandoc_failures", "unmapped_span_classes", "pdf_failures",
+                    "outline_drift", "html_tables_kept", "stale_toc_entries",
+                    "broken_links", "not_in_toc", "oversized", "undersized"):
               print(f"| {k.replace('_',' ')} | {len(r.get(k, []))} |")
           for k in ("broken_links", "not_in_toc"):
               items = r.get(k, [])
