@@ -216,9 +216,12 @@ function Pandoc(doc)
   return doc
 end
 
+-- Only the functions named here run: returning an explicit filter list opts out
+-- of pandoc's pick-up-every-global behaviour, so a handler left off this table
+-- is silently dead code.
 -- Span/Table/Div/Header run before Blocks so trailers are detected on clean text.
 return {
-  { Span = Span, Table = Table, Div = Div, Header = Header },
+  { Span = Span, Table = Table, Div = Div, Header = Header, Link = Link },
   { Blocks = Blocks },
   { Pandoc = Pandoc },
 }

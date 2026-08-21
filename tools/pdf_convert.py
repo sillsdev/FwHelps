@@ -145,6 +145,96 @@ def running_margins(doc: fitz.Document, threshold: float = 0.6) -> tuple[float, 
     return round(top, 1), round(bottom, 1)
 
 
+LEADER = re.compile(r"\.{4,}\s*\d+\s*$")
+INDEX_HEAD = re.compile(r"^#{1,6}\s*\**\s*(language|subject|topic)?\s*index\s*\**\s*$", re.I)
+HEADING = re.compile(r"^(#{1,6})\s+(.*\S)\s*$")
+
+
+def strip_toc(md: str) -> str:
+    """Drop the document's own table of contents.
+
+    Every Word-produced PDF opens with dotted-leader contents lines, which
+    pymupdf4llm renders as a bogus one-column table -- 16 to 37 lines of
+    "2.1 Starting up a Project .......... 4" per document. The markdown file
+    already has real headings, and this branch has a README index, so the
+    inline copy is pure noise for a reader and for retrieval alike.
+    """
+    out = []
+    for line in md.splitlines():
+        bare = line.strip().strip("|").strip()
+        if LEADER.search(bare):
+            continue
+        # The table skeleton left behind once its rows are gone. Tested with a
+        # character-set check, not a regex: a nested-quantifier pattern like
+        # (:?-+:?\s*\|?)+ backtracks exponentially on a long separator row.
+        # A separator is only real if an actual table row precedes it.
+        if bare and set(bare) <= set("|-: "):
+            prev = next((x for x in reversed(out) if x.strip()), "")
+            if not prev.strip().startswith("|"):
+                continue
+        if re.fullmatch(r"\|\s*Contents\s*\|", line.strip(), re.I):
+            continue
+        out.append(line)
+    return "\n".join(out)
+
+
+def strip_back_index(md: str) -> str:
+    """Drop a back-of-book index.
+
+    ConceptualIntroFLEx ends with "Language index" and "Subject index": several
+    thousand words of headword-plus-page-number that carry no sentences, cannot
+    be followed without the printed pagination, and would otherwise be the
+    single largest retrievable block in the document.
+
+    Only honoured near the end of a document, so a section legitimately called
+    "Index" mid-text is left alone.
+    """
+    lines = md.splitlines()
+    for i, line in enumerate(lines):
+        if INDEX_HEAD.match(line.strip()) and i > len(lines) * 0.75:
+            return "\n".join(lines[:i]).rstrip() + "\n"
+    return md
+
+
+def demote_headings(md: str) -> str:
+    """Push every heading down one level and strip emphasis markers.
+
+    The page's own H1 is the document title, added by the caller, so the PDF's
+    top-level sections belong at H2. Word also bolds its headings, which pandoc
+    faithfully reproduces as "# **1 Introduction**".
+    """
+    out = []
+    for line in md.splitlines():
+        m = HEADING.match(line)
+        if not m:
+            out.append(line)
+            continue
+        level = min(6, len(m.group(1)) + 1)
+        text = re.sub(r"^[*_]{1,2}|[*_]{1,2}$", "", m.group(2).strip()).strip()
+        out.append(f"{'#' * level} {text}" if text else "")
+    return "\n".join(out)
+
+
+def drop_repeated_title(md: str, title: str) -> str:
+    """Remove the document's own title heading when it restates the page title.
+
+    Otherwise every PDF opens with the title twice -- once as the H1 this tool
+    adds, once as the heading from the PDF's title page ("Technical Notes on
+    FieldWorks Send-Receive" then "Technical Notes on Fieldworks Send/Receive").
+    Compared on letters and digits alone, so punctuation and casing differences
+    like Send-Receive vs Send/Receive still count as the same title.
+    """
+    key = lambda s: re.sub(r"[^a-z0-9]", "", s.lower())
+    want = key(title)
+    lines = md.splitlines()
+    for i, line in enumerate(lines[:12]):
+        m = HEADING.match(line)
+        if m and key(m.group(2)) == want:
+            del lines[i]
+            break
+    return "\n".join(lines).strip() + "\n"
+
+
 def outline_of(md: str) -> list[tuple[int, str]]:
     """Headings in generated markdown, ignoring anything inside fenced code."""
     out, fenced = [], False
@@ -182,7 +272,13 @@ def strip_furniture(pages: list[str], threshold: float = 0.6) -> list[str]:
         for line in set(lines[:2] + lines[-2:]):
             counts[DIGITS.sub("#", line)] += 1
 
-    furniture = {k for k, n in counts.items() if n >= threshold * len(pages)}
+    # Word repeats the *current section* heading in the running header, so any
+    # one header text covers only its own section and never approaches a
+    # majority of pages. An absolute floor catches those; a first- or last-line
+    # of a page that recurs three times is furniture, not prose.
+    floor = min(3, max(2, len(pages) // 4))
+    furniture = {k for k, n in counts.items()
+                 if n >= threshold * len(pages) or n >= floor}
     if not furniture:
         return pages
 
@@ -291,12 +387,19 @@ def convert_pdf(pdf: Path, out_md: Path, image_dir: Path) -> tuple[str, list, st
     # reference to the sibling folder it actually sits in.
     md = re.sub(rf"\(\S*?{re.escape(image_dir.name)}/", f"({image_dir.name}/", md)
 
+    # Remove the document's own contents list and back-of-book index, then push
+    # its headings down one level so the title supplied by the caller is the
+    # page's only H1.
+    md = demote_headings(strip_back_index(strip_toc(md)))
+
     md = re.sub(r"\n{4,}", "\n\n\n", md).strip() + "\n"
     return md, outline_of(md), f"{strategy} ({pages}p)", unconverted
 
 
 def frontmatter(fields: dict) -> str:
     def esc(v):
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            return str(v)
         return '"' + str(v).replace("\\", "\\\\").replace('"', '\\"') + '"'
 
     lines = ["---"]
@@ -353,10 +456,11 @@ def run(repo: Path, out: Path, update: bool) -> tuple[dict, list[str]]:
             "title": title,
             "source": rel,
             "type": "pdf",
-            "headings": str(len(outline)),
+            "headings": len(outline),
             "structure": strategy,
         })
-        dest.write_text(f"{fm}\n\n# {title}\n\n{md}", encoding="utf-8")
+        dest.write_text(f"{fm}\n\n# {title}\n\n{drop_repeated_title(md, title)}",
+                        encoding="utf-8")
 
         n_img = len(list(images.glob("*"))) if images.exists() else 0
         if not n_img and images.exists():

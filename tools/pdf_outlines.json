@@ -1,141 +1,54 @@
 {
  "FieldWorks Writing Systems.pdf": {
   "headings": 18,
-  "level1": [
-   "**FieldWorks**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Publishing FLEx Dictionaries Using Microsoft Word.pdf": {
   "headings": 41,
-  "level1": [
-   "**Publishing FLEx Dictionaries Using Microsoft Word**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Technical Notes on FieldWorks Send-Receive.pdf": {
   "headings": 35,
-  "level1": [
-   "**Technical Notes on Fieldworks Send/Receive**",
-   "**1 Send/Receive Introduction**",
-   "**2 Getting started**",
-   "**3 How it works, or why it doesn’t**",
-   "**4 Technical details**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Technical Notes on Interlinear Import.pdf": {
   "headings": 7,
-  "level1": [
-   "**Technical Notes on Interlinear Import**",
-   "**1 Importing SFM Interlinear text**",
-   "**2 FieldWorks FLExText Interlinear XML**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Technical Notes on LinguaLinks Database Import.pdf": {
   "headings": 27,
-  "level1": [
-   "**Technical Notes on LinguaLinks Database Import**",
-   "**1 Data model differences**",
-   "**2 Exporting data from LinguaLinks**",
-   "**3 Importing LinguaLinks data into Language Explorer**",
-   "**4 Technical process flow of LinguaLinks import**",
-   "**5 Advanced import problem solving**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Technical Notes on SFM Database Import.pdf": {
   "headings": 34,
-  "level1": [
-   "**Technical Notes on SFM Database Import**",
-   "**1 Mapping SFM fields to the FieldWorks Language Explorer model**",
-   "**2 Legacy to Unicode encoding conversion**",
-   "**3 Importing SFM data into Language Explorer**",
-   "**4 Resolving errors reported by the SFM readiness check**",
-   "**5 Technical process flow of SFM import**",
-   "**6 Advanced import problem solving**",
-   "**7 Language Explorer V3.0 (FieldWorks 6.0) bugs**"
-  ]
+  "level1": []
  },
  "Language Explorer/Training/Technical Notes on Writing Systems.pdf": {
   "headings": 22,
-  "level1": [
-   "**Technical Notes on Writing Systems**",
-   "**1 Ingredients**",
-   "**2 Notes and Recommendations**",
-   "**3 MSKLC and Keyman setup**",
-   "**4 Writing System Error Message**"
-  ]
+  "level1": []
  },
  "Language Explorer/Utilities/AlloGenUserDocumentation.pdf": {
   "headings": 24,
-  "level1": [
-   "**Contents**",
-   "**1 Introduction**",
-   "**2 Edit Operations tab**",
-   "**3 Run Operations tab**",
-   "**4 Edit Replace Operations tab**",
-   "**5 Applying operations**",
-   "**6 Restarting** **_Allomorph Generator_**",
-   "**7 Error messages**",
-   "**8 Known problems**",
-   "**9 Support**"
-  ]
+  "level1": []
  },
  "Language Explorer/Utilities/PcPatrFLExUserDocumentation.pdf": {
   "headings": 24,
-  "level1": [
-   "**Contents**",
-   "**1 Introduction**",
-   "**2 Buttons**",
-   "**3 Parsing a segment**",
-   "**4 Disambiguating a text**",
-   "**5 Restarting** **_Use PC-PATR with FLEx_**",
-   "**6 Error messages**",
-   "**7 Known problems**",
-   "**8 Support**",
-   "**A. The** **_PcPatr Browser_ tool**",
-   "**A.1 Overview**",
-   "**A.2 Right-to-left script**",
-   "**A.3 Keyboard shortcuts**"
-  ]
+  "level1": []
  },
  "Language Explorer/Utilities/silewp2007_002.pdf": {
   "headings": 25,
-  "level1": [
-   "**Abstract**",
-   "**1 Introduction**",
-   "**2 Phonological Concepts**",
-   "**3 Implementation Issues**",
-   "**4 Using TonePars with AMPLE**",
-   "**5 Conclusion**",
-   "**Appendix A: List of Field Codes**",
-   "**Appendix B: Annotated Syntax for Tone Rules**",
-   "**Endnotes**",
-   "**References**"
-  ]
+  "level1": []
  },
  "Language Explorer/Utilities/ToneParsFLExUserDocumentation.pdf": {
   "headings": 22,
-  "level1": [
-   "**Contents**",
-   "**1 Introduction**",
-   "**2 Buttons and check boxes**",
-   "**3 Maximum analyses setting for** **_XAmple_**",
-   "**4 Restarting** **_Use TonePars with FLEx_**",
-   "**5 Known problems**",
-   "**6 Output files**",
-   "**7 Error messages**",
-   "**8 Support**"
-  ]
+  "level1": []
  },
  "Language Explorer/Utilities/VarGenUserDocumentation.pdf": {
   "headings": 26,
-  "level1": [
-   "**_Variant Generator_ User Documentation**"
-  ]
+  "level1": []
  },
  "WW-ConceptualIntro/ConceptualIntroFLEx.pdf": {
-  "headings": 146,
-  "level1": [
-   "**A Conceptual Introduction to Morphological Parsing for**",
-   "**A Conceptual Introduction to Morphological Parsing for**"
-  ]
+  "headings": 145,
+  "level1": []
  }
 }

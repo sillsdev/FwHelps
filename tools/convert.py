@@ -136,6 +136,17 @@ def check_links(links: list[str], topic_rel: str, known: set[str]) -> list[str]:
     return broken
 
 
+def _relative(src: str, target: str) -> str:
+    """Path to `target` as seen from the file at `src`."""
+    base = Path(src).parent.as_posix().split("/") if Path(src).parent.as_posix() != "." else []
+    dest = target.rsplit(".", 1)[0] + ".md"
+    parts = dest.split("/")
+    i = 0
+    while i < len(base) and i < len(parts) - 1 and base[i] == parts[i]:
+        i += 1
+    return "/".join([".."] * (len(base) - i) + parts[i:])
+
+
 def _norm(p: str) -> str:
     parts: list[str] = []
     for seg in p.split("/"):
@@ -290,13 +301,22 @@ def main() -> int:
 
         # Drop pandoc's leading title heading; we re-emit it as the page h1.
         md = re.sub(r"^\s*#\s+.*?\n+", "", md, count=1)
+        # Anything still at h1 was a sibling of the title rather than the title
+        # itself -- the Glossary's 27 letter headings, for instance. Keeping one
+        # h1 per page makes the document outline mean the same thing everywhere.
+        md = re.sub(r"^# ", "## ", md, flags=re.M)
 
         breadcrumb = crumbs.get(rel, [])
+        # A few TOC nodes name another compiled help file rather than a section
+        # ("Using_Help.chm::/Using_Help.hhc"); that is not a readable trail.
+        if any("chm::" in c or c.endswith(".hhc") for c in breadcrumb):
+            breadcrumb = []
         if not breadcrumb:
             report["not_in_toc"].append(rel)
             breadcrumb = [x.replace("_", " ") for x in Path(rel).parent.parts]
 
-        keywords = [k.strip() for k in meta.meta.get("rh-index-keywords", "").split(",") if k.strip()]
+        keywords = list(dict.fromkeys(
+            k.strip() for k in meta.meta.get("rh-index-keywords", "").split(",") if k.strip()))
         words = len(re.sub(r"[#*`|>_\-\[\]()]", " ", md).split())
         if words > 900:
             report["oversized"].append([rel, words])
@@ -309,7 +329,6 @@ def main() -> int:
             "source": rel,
             "url": f"{PUBLIC}/index.htm#t={quote(rel)}",
             "keywords": keywords,
-            "related": [lbl for lbl, _ in meta.related if lbl],
             "fw_help_version": version,
             "type": "index" if "overview" in Path(rel).stem.lower() else "topic",
             "content_hash": "sha256:" + hashlib.sha256(md.encode()).hexdigest()[:16],
@@ -322,6 +341,27 @@ def main() -> int:
         header = f"{fm}\n\n# {title}\n"
         if trail:
             header += f"\n*{trail}*\n"
+
+        footer = []
+        for label, href in meta.related:
+            if not label:
+                continue
+            target = urldefrag(unquote(href))[0]
+            if _norm((Path(rel).parent / target).as_posix()) in known:
+                rel_link = quote(_relative(rel, _norm((Path(rel).parent / target).as_posix())))
+                footer.append(f"- [{label}]({rel_link})")
+            else:
+                footer.append(f"- {label}")
+        externals = [f"- <{href}>" for _, href in meta.external if href.startswith("http")]
+        # Put the trailers back as a navigable footer. The Lua filter strips
+        # them from the body so they do not sit in the middle of the prose, but
+        # 1,574 of 1,599 topics carry one and they are the corpus's link graph:
+        # dropping them entirely lost the "Related Internet Sites" URLs outright.
+        if footer or externals:
+            md = md.rstrip() + "\n\n## Related topics\n\n" + "\n".join(footer)
+            if externals:
+                md += "\n\n## Related links\n\n" + "\n".join(externals)
+            md += "\n"
 
         dest = out / (rel.rsplit(".", 1)[0] + ".md")
         dest.parent.mkdir(parents=True, exist_ok=True)
