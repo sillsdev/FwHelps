@@ -21,6 +21,11 @@ local SPAN_MAP = {
   FileName      = "code",
   Filename      = "code",    -- authoring typo, same intent
   Placeholder   = "emph",
+  -- RoboHelp table presentation classes carry no document semantics.
+  hcp1          = "plain",
+  hcp2          = "plain",
+  hcp3          = "plain",
+  hcp4          = "plain",
   Superscript   = "superscript",
   nobr          = "plain",
   expandtext    = "plain",
@@ -69,6 +74,22 @@ function Link(el)
   local path, frag = t:match("^([^#]*)(.*)$")
   local rewritten, n = path:gsub("%.html?$", ".md")
   if n > 0 then el.target = rewritten .. frag end
+  return el
+end
+
+--- Drop the presentational attributes RoboHelp puts on every image.
+--- GFM cannot express width/height/style, so pandoc falls back to a raw <img>
+--- tag and 2,109 of them were surviving into the markdown across 842 files.
+--- The sizes are RoboHelp's inline-icon dimensions, not information.
+function Image(el)
+  -- Decorative RoboHelp marker on Tip/Note headings. Empty-alt images
+  -- stringify as U+FFFD in alert detection and GFM output.
+  local src = tostring(el.src or "")
+  if src == "" and el.target then src = tostring(el.target) end
+  if src:lower():match("note[_-]?icon%.gif") then
+    return pandoc.List()
+  end
+  el.attr = pandoc.Attr()
   return el
 end
 
@@ -146,8 +167,6 @@ function Header(el)
   return el
 end
 
-local TRAILER = { ["Related Topics"] = true, ["Related Internet Sites"] = true }
-
 local function alert_kind(block)
   if block.t ~= "Header" then return nil end
   for _, cls in ipairs(block.classes) do
@@ -158,31 +177,21 @@ local function alert_kind(block)
   return ALERT_MAP[t]
 end
 
---- Two block-level jobs in one pass:
----
---- 1. Strip the "Related Topics" / "Related Internet Sites" trailers. 1,574 of
----    1,599 topics carry one; as prose they append a link list to nearly every
----    chunk. Python re-attaches them as frontmatter, so they survive as a link
----    graph without polluting the embedded text.
----
---- 2. Wrap Note/Tip/Important/Warning/Caution callouts in GitHub alert
----    blockquotes. This has to happen here rather than in Header() because the
----    callout body is the *following* blocks, not the heading's children.
+--- Wrap Note/Tip/Important/Warning/Caution callouts in GitHub alert
+--- blockquotes. This has to happen here rather than in Header() because the
+--- callout body is the *following* blocks, not the heading's children.
 function Blocks(blocks)
   local out = pandoc.List()
   local i = 1
   while i <= #blocks do
     local b = blocks[i]
 
-    if b.t == "Header" and TRAILER[text_of(b.content)] then
-      local level = b.level
-      i = i + 1
-      while i <= #blocks and not (blocks[i].t == "Header" and blocks[i].level <= level) do
-        i = i + 1
-      end
-      goto continue
-    end
-
+    -- The "Related Topics" / "Related Internet Sites" trailers stay where the
+    -- author put them. Reconstructing them from link labels alone lost the
+    -- prose between the links -- "Lists overview (task helps)" became "Lists
+    -- overview", and "Choose a translation type (in an Example Lexicon Edit)"
+    -- lost both its qualifier and its second link. Python only normalises the
+    -- heading level afterwards.
     local kind = alert_kind(b)
     if kind then
       -- Raw, not Str: pandoc would escape the brackets to "\[!NOTE\]", which
@@ -199,7 +208,16 @@ function Blocks(blocks)
       goto continue
     end
 
-    out:insert(b)
+    -- A handful of RoboHelp list fragments arrive as literal text beginning
+    -- "- -" instead of a nested list node. Reparse only that malformed
+    -- marker through Pandoc's Markdown reader so the item remains content but
+    -- is emitted as a real nested list (never a literal marker).
+    if b.t == "Para" and text_of(b.content):match("^%s*%-%s+%-%s+") then
+      local repaired = pandoc.read(text_of(b.content), "markdown")
+      for _, item in ipairs(repaired.blocks) do out:insert(item) end
+    else
+      out:insert(b)
+    end
     i = i + 1
     ::continue::
   end
@@ -221,7 +239,8 @@ end
 -- is silently dead code.
 -- Span/Table/Div/Header run before Blocks so trailers are detected on clean text.
 return {
-  { Span = Span, Table = Table, Div = Div, Header = Header, Link = Link },
+  { Span = Span, Table = Table, Div = Div, Header = Header, Link = Link,
+    Image = Image },
   { Blocks = Blocks },
   { Pandoc = Pandoc },
 }

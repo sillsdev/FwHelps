@@ -16,6 +16,8 @@ import sys
 import time
 from pathlib import Path
 
+from output_fs import OutputStaging
+
 
 class ExtractError(RuntimeError):
     pass
@@ -93,6 +95,7 @@ def _hh(chm: Path, outdir: Path) -> str | None:
 KNOWN_EXTS = {
     ".htm", ".html", ".css", ".js", ".gif", ".png", ".jpg", ".jpeg", ".bmp",
     ".hhc", ".hhk", ".glo", ".lng", ".ico", ".svg", ".htt", ".xml", ".txt",
+    ".brs",
 }
 
 
@@ -136,7 +139,7 @@ def validate(outdir: Path) -> tuple[list[str], list[str]]:
     # %-encoded; both have to come off before hitting the filesystem.
     targets = {
         urldefrag(unquote(_html.unescape(m)))[0].replace("\\", "/")
-        for m in re.findall(r'name="local"\s+value="([^"]+)"', text, re.I)
+        for m in re.findall(r'name="local"\s+value="([^"]+)"', text, re.IGNORECASE)
     }
     for t in sorted(targets):
         if not t or (outdir / t).exists():
@@ -161,32 +164,51 @@ def extract(chm: Path, outdir: Path, clean: bool = True, check: bool = True) -> 
     outdir = Path(outdir)
     if not chm.is_file():
         raise ExtractError(f"no such CHM: {chm}")
-    if clean and outdir.exists():
-        shutil.rmtree(outdir)
-    outdir.mkdir(parents=True, exist_ok=True)
-
-    errors = []
+    # Keep failed attempts in private directories beside the destination.  The
+    # staging owner guarantees that an existing destination is untouched until
+    # a validated extraction is promoted, and same-directory staging makes the
+    # final rename safe even when the system temporary directory is another
+    # volume.
+    errors: list[str] = []
+    extract.advisory = []
     for backend in (_sevenzip, _chmlib, _hh):
         try:
-            tool = backend(chm, outdir)
+            with OutputStaging(outdir) as staging:
+                tool = backend(chm, staging.path)
+                if not tool:
+                    continue
+                if not any(
+                    path.is_file() and path.suffix.lower() in {".htm", ".html"}
+                    for path in staging.rglob("*")
+                ):
+                    errors.append(f"{tool}: produced no .htm files")
+                    continue
+                advisory: list[str] = []
+                if check:
+                    fatal, advisory = validate(staging.path)
+                    if fatal:
+                        errors.append(
+                            f"{tool} produced a corrupt/incomplete extraction "
+                            f"({len(fatal)} problems): " + "; ".join(fatal)
+                        )
+                        continue
+                # Content-level inconsistencies ride along for the author
+                # report rather than failing the build.
+                if clean or not outdir.exists():
+                    staging.promote()
+                else:
+                    # Retain the historical clean=False merge semantics,
+                    # but construct the merged tree privately so a copy
+                    # failure cannot partially modify the destination.
+                    with OutputStaging(outdir) as merged:
+                        shutil.copytree(outdir, merged.path, dirs_exist_ok=True)
+                        shutil.copytree(staging.path, merged.path, dirs_exist_ok=True)
+                        merged.promote()
+                extract.advisory = advisory
+                return tool
         except subprocess.CalledProcessError as exc:
             errors.append(f"{backend.__name__}: exit {exc.returncode}")
             continue
-        if tool:
-            if not any(outdir.rglob("*.htm")):
-                errors.append(f"{tool}: produced no .htm files")
-                continue
-            if check:
-                fatal, advisory = validate(outdir)
-                if fatal:
-                    raise ExtractError(
-                        f"{tool} produced a corrupt/incomplete extraction "
-                        f"({len(fatal)} problems):\n  " + "\n  ".join(fatal)
-                    )
-                # Content-level inconsistencies ride along for the author
-                # report rather than failing the build.
-                extract.advisory = advisory
-            return tool
 
     raise ExtractError(
         "no working CHM extractor found.\n"

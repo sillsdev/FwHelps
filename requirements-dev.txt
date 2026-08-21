@@ -1,0 +1,2 @@
+# Development-only tooling.
+ruff==0.16.4

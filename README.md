@@ -37,8 +37,9 @@ Built automatically by
 `develop`. Nothing there is hand-edited — edit the help in RoboHelp and commit
 the CHM.
 
-Each build also produces `author-report.json`: broken links, topics missing
-from the table of contents, and over/undersized topics.
+Each build also produces `author-report.json`, with a stable `{corpus, summary,
+issues}` schema covering broken links, topics missing from the table of contents,
+and other source/export quality findings.
 
 ### Versions
 
@@ -72,8 +73,34 @@ export is tagged `markdown-export/<tag>`.
 Local build (needs `pandoc` 3.x, and `7z` or Windows' built-in `hh.exe`):
 
 ```sh
-python tools/convert.py --repo . --out export
+uv run --no-project --python .venv/bin/python tools/convert.py --repo . --out export
 ```
+
+### Reproducible local setup
+
+The converter uses uv with the Python version in [`.python-version`](.python-version)
+and exact runtime/development pins in `requirements.txt` and
+`requirements-dev.txt`:
+
+```sh
+uv python install
+uv venv
+uv pip install --python .venv/bin/python \
+  --requirement requirements.txt \
+  --requirement requirements-dev.txt
+uv run --no-project --python .venv/bin/python \
+  -m unittest discover -s tools -p 'test_*.py' -v
+uv run --no-project --python .venv/bin/python ruff check tools
+uv run --no-project --python .venv/bin/python \
+  tools/convert.py --repo . --out export
+uv run --no-project --python .venv/bin/python \
+  tools/pdf_convert.py --repo . --out export --update-outlines
+```
+
+On PowerShell, use `.venv\Scripts\python.exe` in place of
+`.venv/bin/python` in those `uv run` and `uv pip` commands. Updating outline
+locks is intentional and should be reviewed with the resulting
+`tools/pdf_outlines.json` change.
 
 > [!IMPORTANT]
 > `hh.exe -decompile` silently truncates filenames when the output path exceeds

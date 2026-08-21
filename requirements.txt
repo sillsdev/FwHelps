@@ -1,0 +1,4 @@
+# Runtime dependencies for the PDF conversion track. Keep these in lockstep:
+# pymupdf4llm is tested against the matching PyMuPDF release.
+pymupdf==1.28.2
+pymupdf4llm==1.28.2

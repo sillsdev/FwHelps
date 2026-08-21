@@ -1,7 +1,7 @@
 name: Markdown Export
 
-# Converts FieldWorks_Language_Explorer_Help.chm into a markdown corpus and
-# publishes it to the `markdown-export` orphan branch, where it is consumed by
+# Converts the FieldWorks CHM/PDF documentation corpus into markdown and
+# publishes it to the `markdown-export` branch, where it is consumed by
 # the FieldWorks AI bot and readable/diffable by humans.
 #
 # The CHM is a binary, so there is nothing to diff and every run is a full
@@ -54,51 +54,70 @@ jobs:
           pandoc --version | head -2
           7z i > /dev/null && echo "7z ok"
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.13'
+          version: '0.9.4'
 
-      - name: Install Python dependencies
-        run: pip install --quiet pymupdf pymupdf4llm
+      - name: Provision pinned Python and dependencies
+        working-directory: src
+        run: |
+          set -euo pipefail
+          uv python install
+          uv venv
+          uv pip install --python .venv/bin/python \
+            --requirement requirements.txt \
+            --requirement requirements-dev.txt
+
+      - name: Lint converters
+        run: uv run --no-project --python src/.venv/bin/python ruff check src/tools
+
+      - name: Test converters
+        run: uv run --no-project --python src/.venv/bin/python \
+          -m unittest discover -s src/tools -p 'test_*.py' -v
 
       - name: Convert
         run: |
           set -euo pipefail
-          python src/tools/convert.py \
+          uv run --no-project --python src/.venv/bin/python src/tools/convert.py \
             --repo src \
             --out export \
             --work "${RUNNER_TEMP}/chm" \
             --source-ref "${GITHUB_SHA::7}"
 
-      # convert.py exits non-zero on a corrupt extraction, a pandoc failure, or
-      # an unmapped semantic class. Everything else -- broken links, oversized
-      # topics -- is advisory and lands in author-report.json for the doc
-      # author, because blocking a release on an editorial opinion just trains
-      # people to bypass CI.
+      # convert.py exits non-zero on a corrupt extraction, a pandoc/PDF failure,
+      # an unmapped semantic class, or an outline drift/unpinned check. Everything
+      # else -- broken links, oversized topics -- is advisory and lands in the
+      # canonical author-report.json for the doc author, because blocking a
+      # release on an editorial opinion just trains people to bypass CI.
       - name: Summarise quality report
         if: always()
         run: |
-          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          uv run --no-project --python src/.venv/bin/python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
           import json, pathlib
           p = pathlib.Path("export/author-report.json")
           if not p.exists():
               print("## Markdown Export\n\nNo report produced — the build failed early.")
               raise SystemExit(0)
           r = json.loads(p.read_text(encoding="utf-8"))
-          print(f"## Markdown Export — help {r.get('fw_help_version','?')}\n")
-          print(f"**{r.get('topics',0):,} topics converted**\n")
+          corpus = r.get("corpus", {})
+          summary = r.get("summary", {})
+          print(f"## Markdown Export — ref {corpus.get('source_ref','?')}\n")
+          print(
+              f"**{corpus.get('topic_count', 0):,} topics and "
+              f"{corpus.get('pdf_count', 0):,} PDFs converted**\n"
+          )
           print("| Check | Count |\n| --- | ---: |")
-          for k in ("pandoc_failures", "unmapped_span_classes", "pdf_failures",
-                    "outline_drift", "html_tables_kept", "stale_toc_entries",
-                    "broken_links", "not_in_toc", "oversized", "undersized"):
-              print(f"| {k.replace('_',' ')} | {len(r.get(k, []))} |")
-          for k in ("broken_links", "not_in_toc"):
-              items = r.get(k, [])
+          print(f"| fatal | {summary.get('fatal', 0)} |")
+          print(f"| advisory | {summary.get('advisory', 0)} |")
+          for code, count in sorted(summary.get("by_code", {}).items()):
+              print(f"| {code.replace('_', ' ')} | {count} |")
+          for code in ("missing_link", "missing_image", "not_in_toc"):
+              items = [item for item in r.get("issues", []) if item.get("code") == code]
               if items:
-                  print(f"\n<details><summary>{k.replace('_',' ')} ({len(items)})</summary>\n")
+                  print(f"\n<details><summary>{code.replace('_',' ')} ({len(items)})</summary>\n")
                   for it in items[:50]:
-                      print(f"- `{it}`")
+                      print(f"- `{it.get('path', '')}`: {it.get('message', '')}")
                   print("\n</details>")
           PY
 
@@ -109,42 +128,69 @@ jobs:
           path: export
           retention-days: 14
 
-      - name: Publish to orphan branch
+      - name: Publish incremental markdown-export history
         if: github.event_name != 'workflow_dispatch' || !inputs.dry_run
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          cd export
-          git init -q -b "${EXPORT_BRANCH}"
-          git config user.name  "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git remote add origin \
+          PUBLISH_DIR="${RUNNER_TEMP}/markdown-export-publish"
+          rm -rf -- "${PUBLISH_DIR}"
+          mkdir -p "${PUBLISH_DIR}"
+          git -C "${PUBLISH_DIR}" init -q -b "${EXPORT_BRANCH}"
+          git -C "${PUBLISH_DIR}" config user.name  "github-actions[bot]"
+          git -C "${PUBLISH_DIR}" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "${PUBLISH_DIR}" remote add origin \
             "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git add -A
-          # The branch has no shared history with develop by design, so each
-          # build replaces it wholesale. Diffs stay readable because the tree is
-          # 1:1 with topics -- one edited topic is one changed file.
-          git commit -q -m "Markdown export of help ${GITHUB_SHA::7}
 
-          Generated from FieldWorks_Language_Explorer_Help.chm by
+          # Keep ordinary branch history when the export branch already exists.
+          # A missing branch is the first-publication case and starts the same
+          # branch name with no parent commit.
+          if git -C "${PUBLISH_DIR}" fetch --no-tags origin \
+              "refs/heads/${EXPORT_BRANCH}:refs/remotes/origin/${EXPORT_BRANCH}"; then
+            git -C "${PUBLISH_DIR}" checkout -q -B "${EXPORT_BRANCH}" \
+              "refs/remotes/origin/${EXPORT_BRANCH}"
+          else
+            git -C "${PUBLISH_DIR}" checkout -q -B "${EXPORT_BRANCH}"
+          fi
+
+          # Replace generated content while retaining the checked-out commit
+          # graph. `git clean` cannot remove tracked files, so remove the old
+          # tracked tree first; otherwise deleted topics survive publication.
+          git -C "${PUBLISH_DIR}" rm -r -q --ignore-unmatch -- .
+          git -C "${PUBLISH_DIR}" clean -fdx -q
+          cp -a "${GITHUB_WORKSPACE}/export/." "${PUBLISH_DIR}/"
+          git -C "${PUBLISH_DIR}" add -A
+          if git -C "${PUBLISH_DIR}" diff --cached --quiet; then
+            echo "${EXPORT_BRANCH} is already up to date"
+          else
+            git -C "${PUBLISH_DIR}" commit -q -m "Markdown export of help and PDFs ${GITHUB_SHA::7}
+
+          Generated from the FieldWorks CHM/PDF documentation corpus by
           .github/workflows/markdown-export.yml. Do not edit by hand.
 
           Source: ${GITHUB_REPOSITORY}@${GITHUB_SHA}"
-          git push -f origin "${EXPORT_BRANCH}"
-          echo "published to ${EXPORT_BRANCH}"
+            git -C "${PUBLISH_DIR}" push origin "HEAD:${EXPORT_BRANCH}"
+            echo "published to ${EXPORT_BRANCH}"
+          fi
+          echo "PUBLISH_DIR=${PUBLISH_DIR}" >> "$GITHUB_ENV"
 
       - name: Tag the export to match the release
-        if: startsWith(github.ref, 'refs/tags/FieldWorks')
+        if: startsWith(github.ref, 'refs/tags/FieldWorks') &&
+            (github.event_name != 'workflow_dispatch' || !inputs.dry_run)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          cd export
+          cd "${PUBLISH_DIR}"
           # FwHelps is already tagged FieldWorks<version> by the FieldWorks
           # repo's Build/releaseTagger.py, so the export can carry the same
           # version identity and stay linkable from the README version table.
           TAG="${EXPORT_BRANCH}/${GITHUB_REF_NAME}"
-          git tag -a "$TAG" -m "Markdown export for ${GITHUB_REF_NAME}"
-          git push -f origin "refs/tags/${TAG}"
-          echo "tagged $TAG"
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null 2>&1; then
+            echo "tag already exists: $TAG"
+          else
+            git tag -a "$TAG" -m "Markdown export for ${GITHUB_REF_NAME}"
+            git push origin "refs/tags/${TAG}"
+            echo "tagged $TAG"
+          fi

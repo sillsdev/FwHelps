@@ -24,8 +24,7 @@ from pathlib import Path
 from urllib.parse import unquote, urldefrag
 
 sys.path.insert(0, str(Path(__file__).parent))
-from chm_extract import extract  # noqa: E402
-
+from chm_extract import extract
 
 # ---------------------------------------------------------------- sitemap ---
 
@@ -200,7 +199,7 @@ def survey_topics(root):
         p.feed(raw.decode("cp1252", errors="replace"))
 
         charset = ""
-        m = re.search(rb"charset=([\w-]+)", raw, re.I)
+        m = re.search(rb"charset=([\w-]+)", raw, re.IGNORECASE)
         if m:
             charset = m.group(1).decode("ascii", "replace").lower()
 
@@ -238,7 +237,7 @@ def classify_links(topics, root):
             low = href.lower()
             if low.startswith(("http://", "https://")):
                 kinds["external"] += 1
-                external[re.sub(r"^https?://([^/]+).*", r"\1", href, flags=re.I)] += 1
+                external[re.sub(r"^https?://([^/]+).*", r"\1", href, flags=re.IGNORECASE)] += 1
             elif low.startswith("mailto:"):
                 kinds["mailto"] += 1
             elif low.startswith(("javascript:", "#")):
@@ -283,8 +282,8 @@ def survey_pdfs(repo):
                     else "NONE (scanned?)"
                 )
                 rec["metadata_title"] = (doc.metadata or {}).get("title") or ""
-        except Exception as exc:
-            rec["error"] = "{}: {}".format(type(exc).__name__, exc)
+        except (ValueError, RuntimeError, TypeError) as exc:
+            rec["error"] = f"{type(exc).__name__}: {exc}"
         out.append(rec)
     return out
 
@@ -316,7 +315,7 @@ def main():
         tool = "(reused existing extraction)"
     else:
         tool = extract(chm, work)
-    print("CHM extracted with: {}\n  -> {}".format(tool, work))
+    print(f"CHM extracted with: {tool}\n  -> {work}")
 
     hhc = next(work.rglob("*.hhc"), None)
     hhk = next(work.rglob("*.hhk"), None)
@@ -341,15 +340,14 @@ def main():
 
     rule("CORPUS")
     print("  help version (from .hhk)    {}".format(version or "?"))
-    print("  topics (.htm)               {}".format(len(topics)))
-    print("  total body words            {:,}".format(sum(words)))
+    print(f"  topics (.htm)               {len(topics)}")
+    print(f"  total body words            {sum(words):,}")
     print("  total bytes                 {:,}".format(sum(t["bytes"] for t in topics)))
-    print("  words/topic  min/med/max    {} / {} / {}".format(
-        words[0], words[len(words) // 2], words[-1]))
+    print(f"  words/topic  min/med/max    {words[0]} / {words[len(words) // 2]} / {words[-1]}")
     biggest = max(topics, key=lambda t: t["words"])
     print("  largest topic               {} words  {}".format(biggest["words"], biggest["path"]))
-    print("  topics under 30 words       {}".format(sum(1 for w in words if w < 30)))
-    print("  topics over 1000 words      {}".format(sum(1 for w in words if w > 1000)))
+    print(f"  topics under 30 words       {sum(1 for w in words if w < 30)}")
+    print(f"  topics over 1000 words      {sum(1 for w in words if w > 1000)}")
     print("  distinct images referenced  {}".format(len({i for t in topics for i in t["images"]})))
     print("  topics containing tables    {}".format(sum(1 for t in topics if t["tables"])))
 
@@ -357,41 +355,41 @@ def main():
     print("  nodes                       {}  ({} containers, {} topic links)".format(
         len(toc), sum(1 for n in toc if n["is_container"]), len(toc_hrefs)))
     print("  max depth                   {}".format(max((n["depth"] for n in toc), default=0)))
-    print("  topics NOT in TOC           {}".format(len(orphans)))
-    print("  TOC links with no file      {}".format(len(dangling)))
+    print(f"  topics NOT in TOC           {len(orphans)}")
+    print(f"  TOC links with no file      {len(dangling)}")
     for o in orphans[:10]:
-        print("      orphan:   {}".format(o))
+        print(f"      orphan:   {o}")
     for d in dangling[:10]:
-        print("      dangling: {}".format(d))
+        print(f"      dangling: {d}")
 
     rule("INDEX (.hhk)")
-    print("  keywords                    {}".format(len(idx)))
+    print(f"  keywords                    {len(idx)}")
     print("  keyword -> topic refs       {}".format(sum(len(e["targets"]) for e in idx)))
     print("  topics w/ rh-index-keywords {} / {}".format(
         sum(1 for t in topics if t["keywords"]), len(topics)))
     allkw = collections.Counter(k for t in topics for k in t["keywords"])
-    print("  distinct meta keywords      {}".format(len(allkw)))
-    print("  most common: " + ", ".join("{}({})".format(k, n) for k, n in allkw.most_common(6)))
+    print(f"  distinct meta keywords      {len(allkw)}")
+    print("  most common: " + ", ".join(f"{k}({n})" for k, n in allkw.most_common(6)))
 
     rule("HTML CONSTRUCTS  (what the converter must handle)")
-    print("  tags:     " + ", ".join("{}:{}".format(t, n) for t, n in agg["tags"].most_common(24)))
-    print("  classes:  " + ", ".join("{}:{}".format(c, n) for c, n in agg["classes"].most_common(20)))
-    print("  inline styles: " + ", ".join("{}:{}".format(s, n) for s, n in agg["styles"].most_common(10)))
-    print("  charsets: " + ", ".join("{}:{}".format(c, n) for c, n in agg["charsets"].most_common()))
-    print("  generators: " + ", ".join("{}:{}".format(g, n) for g, n in agg["generators"].most_common(3)))
-    print("  scripts:  " + ", ".join("{}:{}".format(s, n) for s, n in agg["scripts"].most_common(5)))
-    print("  meta names: " + ", ".join("{}:{}".format(m, n) for m, n in agg["meta_names"].most_common(14)))
+    print("  tags:     " + ", ".join(f"{t}:{n}" for t, n in agg["tags"].most_common(24)))
+    print("  classes:  " + ", ".join(f"{c}:{n}" for c, n in agg["classes"].most_common(20)))
+    print("  inline styles: " + ", ".join(f"{s}:{n}" for s, n in agg["styles"].most_common(10)))
+    print("  charsets: " + ", ".join(f"{c}:{n}" for c, n in agg["charsets"].most_common()))
+    print("  generators: " + ", ".join(f"{g}:{n}" for g, n in agg["generators"].most_common(3)))
+    print("  scripts:  " + ", ".join(f"{s}:{n}" for s, n in agg["scripts"].most_common(5)))
+    print("  meta names: " + ", ".join(f"{m}:{n}" for m, n in agg["meta_names"].most_common(14)))
     print("  topics with non-ASCII bytes: {}".format(sum(1 for t in topics if t["non_ascii_bytes"])))
     print("  total non-ASCII bytes:       {:,}".format(sum(t["non_ascii_bytes"] for t in topics)))
 
     rule("LINKS")
     for k, v in sorted(links["kinds"].items(), key=lambda kv: -kv[1]):
-        print("  {:<16} {}".format(k, v))
+        print(f"  {k:<16} {v}")
     print("  BROKEN internal  {}".format(len(links["broken"])))
     for src, href in links["broken"][:10]:
-        print("      {}  ->  {}".format(src, href))
+        print(f"      {src}  ->  {href}")
     print("  external hosts:  " + ", ".join(
-        "{}({})".format(h, n)
+        f"{h}({n})"
         for h, n in sorted(links["external_hosts"].items(), key=lambda kv: -kv[1])[:8]))
 
     rule("PDFs")
@@ -423,7 +421,7 @@ def main():
             "pdfs": pdfs,
             "aggregate": {k: dict(v) for k, v in agg.items()},
         }, indent=1), encoding="utf-8")
-        print("full report -> {}".format(args.json))
+        print(f"full report -> {args.json}")
     return 0
 
 
