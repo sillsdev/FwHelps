@@ -74,7 +74,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 }
 
             with mock.patch.object(convert, "convert_chm", side_effect=unsafe_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(
@@ -100,7 +100,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 raise RuntimeError(f"failed in {extraction}")
 
             with mock.patch.object(convert, "convert_chm", side_effect=failed_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(root, root / "export", work, diagnostics=diagnostics)
@@ -132,7 +132,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
             with mock.patch.object(convert, "convert_chm", return_value={
                 "chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                 "topics": 0, "images": 0, "report": {},
-            }), mock.patch.object(convert.pdf_convert, "run", return_value=(
+            }), mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                 {"converted": 0, "report": {}}, []
             )):
                 convert.build(root, root / "export", root / "work", diagnostics=diagnostics)
@@ -171,7 +171,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                      "chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
                      "topics": 0, "images": 0, "report": {},
                  }) as chm, \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )) as pdf:
                 result = convert.build(repo, repo / "export", repo / "work", source_ref="feature/x")
@@ -195,7 +195,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "topics": 1, "images": 0, "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=fake_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, repo / "export", repo / "work")
@@ -206,6 +206,23 @@ class ConvertOrchestrationTests(unittest.TestCase):
             self.assertIn("Root CHMs (auto-discovered)", readme)
             self.assertIn("FieldWorks_Language_Explorer_Help.chm", readme)
             self.assertIn("Using_Help.chm", readme)
+
+    def test_successful_build_does_not_publish_pdf_staging_lockfile(self):
+        with tempfile.TemporaryDirectory() as raw:
+            repo = Path(raw)
+            (repo / "Using_Help.chm").write_bytes(b"fixture")
+
+            def fake_chm(_chm, _work, destination, **_kwargs):
+                destination.mkdir(parents=True, exist_ok=True)
+                (destination / "index.md").write_text("# Topic\n", encoding="utf-8")
+                return {"chm": "Using_Help.chm", "stem": "Using_Help", "toc": [],
+                        "topics": 1, "images": 0, "report": {}}
+
+            with mock.patch.object(convert, "convert_chm", side_effect=fake_chm):
+                result = convert.build(repo, repo / "export", repo / "work")
+
+            self.assertTrue(result["promoted"])
+            self.assertFalse(list((repo / "export").glob(".fwhelps-export-*.lock")))
 
     def test_direct_chm_conversion_preserves_related_images_and_disambiguates_titles(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -264,7 +281,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "topics": 1, "images": 0, "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=bad_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, out, work)
@@ -288,7 +305,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 }], "topics": 1, "images": 0, "topics_paths": ["missing.htm"], "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=bad_nav), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, out, repo / "work")
@@ -309,7 +326,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "report": {"stale_toc_entries": [["About_Strata_Sequences.htm", "missing"]]}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=stale), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, repo / "export", repo / "work")
@@ -334,7 +351,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 }], "topics": 1, "images": 0, "topics_paths": ["index.htm"], "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=qualified), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, repo / "export", repo / "work")
@@ -355,7 +372,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "topics": 1, "images": 0, "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=fake_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 first = convert.build(repo, repo / "export", repo / "work")
@@ -786,7 +803,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 }
 
             with mock.patch.object(convert, "convert_chm", side_effect=unsafe_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, repo / "export", repo / "work")
@@ -870,7 +887,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                         "source_replacement_paths": ["source.htm"], "report": {}}
 
             with mock.patch.object(convert, "convert_chm", side_effect=source_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(
                      {"converted": 0, "report": {}}, []
                  )):
                 result = convert.build(repo, repo / "export", repo / "work")
@@ -901,7 +918,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 ]],
             }}
             with mock.patch.object(convert, "convert_chm", side_effect=clean_chm), \
-                 mock.patch.object(convert.pdf_convert, "run", return_value=(pdf_result, [])):
+                 mock.patch.object(convert.pdf_convert, "run_in_private_stage", return_value=(pdf_result, [])):
                 result = convert.build(repo, repo / "export", repo / "work")
             source = [issue for issue in result["report"]["issues"]
                       if issue["code"] == "source_replacement_character"

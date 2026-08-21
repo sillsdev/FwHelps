@@ -1254,6 +1254,20 @@ def _run_locked(repo: Path, out: Path, update: bool, source_url=None,
     return {"converted": len(fresh), "report": dict(report), "lines": lines}, lines
 
 
+def run_in_private_stage(repo: Path, out: Path, update: bool, source_url=None,
+        source_ref=None) -> tuple[dict, list[str]]:
+    """Convert into a caller-owned private stage while locking global state.
+
+    The caller must guarantee that ``out`` is an unshared staging path.  Such
+    a path needs no destination lock; creating one beside it would turn the
+    lockfile into generated content when the enclosing stage is promoted.
+    """
+    with export_locks(OUTLINES):
+        return _run_locked(
+            repo, Path(out), update, source_url=source_url, source_ref=source_ref,
+        )
+
+
 def run(repo: Path, out: Path, update: bool, source_url=None,
         source_ref=None) -> tuple[dict, list[str]]:
     """Convert PDFs under output-then-global-outline locks.

@@ -136,8 +136,8 @@ def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
 
         pdf_url = f"{source_repo.rstrip('/')}/blob/{source_ref}/{{path}}"
         try:
-            pdf_result, _ = pdf_convert.run(
-                repo, staging.path / "pdf", update=False, source_url=pdf_url
+            pdf_result, _ = pdf_convert.run_in_private_stage(
+                repo, staging.path / "pdf", update=False, source_url=pdf_url,
             )
         except Exception as exc:  # noqa: BLE001 - isolate PDF backend failure
             pdf_result = {"converted": 0, "report": {
