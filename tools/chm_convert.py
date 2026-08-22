@@ -377,6 +377,7 @@ def _convert_chm_locked(chm: Path, work_root: Path, destination: Path, *, reuse:
     )
     report: dict[str, list] = defaultdict(list)
     unmapped: Counter[str] = Counter()
+    unmapped_topics: dict[str, set[str]] = defaultdict(set)
     source_replacement_paths: list[str] = []
     titles: dict[str, list[str]] = defaultdict(list)
     records: dict[str, tuple[str, TopicMeta]] = {}
@@ -428,6 +429,8 @@ def _convert_chm_locked(chm: Path, work_root: Path, destination: Path, *, reuse:
                 report["pandoc_failures"].append([rel, str(exc)])
                 continue
             unmapped.update(unknown)
+            for class_name in unknown:
+                unmapped_topics[class_name].add(rel)
             markdown = re.sub(r"^\s*#\s+.*?\n+", "", markdown, count=1)
             markdown = re.sub(r"^# ", "## ", markdown, flags=re.MULTILINE)
             markdown = _normalize_nested_lists(markdown)
@@ -503,7 +506,10 @@ def _convert_chm_locked(chm: Path, work_root: Path, destination: Path, *, reuse:
         else:
             report["stale_toc_entries"].append(item)
     if unmapped:
-        report["unmapped_span_classes"] = [[name, count] for name, count in unmapped.most_common()]
+        report["unmapped_span_classes"] = [
+            [name, count, sorted(unmapped_topics[name], key=str.casefold)]
+            for name, count in unmapped.most_common()
+        ]
     return {"chm": chm.name, "stem": safe_stem(chm.name), "version": version,
             "toc": toc, "topics": written, "images": images, "report": dict(report),
             "source_replacement_paths": source_replacement_paths,

@@ -4,6 +4,53 @@ from reporting import Issue, Report
 
 
 class ReportingTests(unittest.TestCase):
+    def test_markdown_report_gives_robohelp_authors_paths_evidence_and_guidance(self):
+        report = Report([
+            Issue(
+                "source_missing_link",
+                "missing | target\nsecond line",
+                "Using_Tools/topic.htm",
+                detail=["Using_Tools/topic.htm", "missing.htm"],
+            ),
+        ], metadata={
+            "source_ref": "abc1234",
+            "chm_count": 2,
+            "topic_count": 1630,
+            "image_count": 583,
+            "pdf_count": 13,
+        })
+
+        markdown = report.to_markdown()
+
+        self.assertIn("# Author quality report", markdown)
+        self.assertIn("`abc1234`", markdown)
+        self.assertIn("| CHMs | 2 |", markdown)
+        self.assertIn("## Missing local link (`source_missing_link`)", markdown)
+        self.assertIn("**How to fix in RoboHelp:**", markdown)
+        self.assertIn("Open the source topic", markdown)
+        self.assertIn("`Using_Tools/topic.htm`", markdown)
+        self.assertIn("missing \\| target<br>second line", markdown)
+        self.assertIn('&#91;"Using_Tools/topic.htm", "missing.htm"&#93;', markdown)
+        self.assertIn("[author-report.json](author-report.json)", markdown)
+
+    def test_markdown_report_neutralizes_source_markdown_and_backslashes(self):
+        report = Report([
+            Issue(
+                "source_missing_link",
+                "[click](javascript:alert(1)) \\| raw `text`",
+                "topic[1].htm",
+                detail={"target": "[bad](missing.htm)"},
+            ),
+        ])
+
+        markdown = report.to_markdown()
+
+        self.assertNotIn("[click](javascript:alert(1))", markdown)
+        self.assertNotIn("[bad](missing.htm)", markdown)
+        self.assertIn("&#91;click&#93;(javascript:alert(1))", markdown)
+        self.assertIn("&#92;\\| raw &#96;text&#96;", markdown)
+        self.assertIn("`topic&#91;1&#93;.htm`", markdown)
+
     def test_same_issue_catalog_renders_json_readme_and_console(self):
         report = Report()
         report.add(Issue("source_missing_link", "Missing link", "page.md"))

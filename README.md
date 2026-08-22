@@ -37,9 +37,12 @@ Built automatically by
 `develop`. Nothing there is hand-edited — edit the help in RoboHelp and commit
 the CHM.
 
-Each build also produces `author-report.json`, with a stable `{corpus, summary,
-issues}` schema covering broken links, topics missing from the table of contents,
-and other source/export quality findings.
+Each build also produces `author-report.md` for RoboHelp/PDF authors and
+`author-report.json` for automation. Both cover broken links, topics missing
+from the table of contents, and other source/export quality findings. The
+Markdown report preserves the exact source path and evidence for every finding
+and gives issue-specific repair guidance; JSON retains the stable
+`{corpus, summary, issues}` schema.
 
 Exporter mutation boundaries use a non-blocking native advisory lock on a
 deterministic sibling lockfile, so cooperating invocations targeting the same

@@ -93,6 +93,86 @@ class Report:
     def to_json(self) -> str:
         return json.dumps(self.as_dict(), indent=2, ensure_ascii=False) + "\n"
 
+    @staticmethod
+    def _markdown_cell(value: object, *, code: bool = False) -> str:
+        if value is None or value == "":
+            return "—"
+        if not isinstance(value, str):
+            value = json.dumps(value, ensure_ascii=False)
+        escaped = (value.replace("&", "&amp;").replace("<", "&lt;")
+                   .replace(">", "&gt;").replace("\\", "&#92;")
+                   .replace("`", "&#96;").replace("[", "&#91;")
+                   .replace("]", "&#93;").replace("|", "\\|")
+                   .replace("\r\n", "<br>").replace("\r", "<br>")
+                   .replace("\n", "<br>"))
+        if code:
+            return f"`{escaped}`"
+        return escaped
+
+    @staticmethod
+    def _repair_context(issue: Issue) -> str:
+        if issue.provenance != "source":
+            return "exporter"
+        normalized = issue.path.replace("\\", "/").casefold()
+        if normalized.startswith("pdf/") or normalized.endswith(".pdf"):
+            return "PDF source"
+        return "RoboHelp"
+
+    def to_markdown(self) -> str:
+        """Render the canonical report for source authors and maintainers."""
+        data = self.as_dict()
+        corpus = data["corpus"]
+        summary = data["summary"]
+        lines = [
+            "# Author quality report", "",
+            (
+                "This report explains every source or export finding and how to repair it. "
+                "Machine-readable detail is in [author-report.json](author-report.json)."
+            ), "",
+            "## Corpus", "", "| Item | Value |", "| --- | ---: |",
+            f"| Source ref | {self._markdown_cell(corpus.get('source_ref'), code=True)} |",
+            f"| CHMs | {corpus.get('chm_count', 0)} |",
+            f"| Topics | {corpus.get('topic_count', 0)} |",
+            f"| Images | {corpus.get('image_count', 0)} |",
+            f"| PDFs | {corpus.get('pdf_count', 0)} |", "",
+            "## Summary", "", "| Severity | Count |", "| --- | ---: |",
+            f"| Fatal errors | {summary['fatal']} |",
+            f"| Advisories | {summary['advisory']} |",
+            f"| Total | {summary['total']} |", "",
+        ]
+        grouped: dict[str, list[Issue]] = {}
+        for issue in self.issues:
+            grouped.setdefault(issue.code, []).append(issue)
+        for code in sorted(
+            grouped,
+            key=lambda item: (
+                not ISSUE_CATALOG[item].fatal, ISSUE_CATALOG[item].label.casefold(), item,
+            ),
+        ):
+            policy = ISSUE_CATALOG[code]
+            issues = grouped[code]
+            contexts = {self._repair_context(issue) for issue in issues}
+            where = "/".join(sorted(contexts))
+            lines.extend([
+                f"## {policy.label} (`{code}`)", "",
+                f"- **Severity:** {'fatal error' if policy.fatal else 'advisory'}",
+                f"- **Owner:** {where}",
+                f"- **Count:** {len(issues)}",
+                f"- **How to fix in {where}:** {policy.guidance}", "",
+                "| Source or generated path | Problem | Evidence |",
+                "| --- | --- | --- |",
+            ])
+            for issue in issues:
+                lines.append(
+                    f"| {self._markdown_cell(issue.path, code=True)} "
+                    f"| {self._markdown_cell(issue.message)} "
+                    f"| {self._markdown_cell(issue.detail)} |"
+                )
+            lines.append("")
+        if not grouped:
+            lines.extend(["## Findings", "", "No findings.", ""])
+        return "\n".join(lines)
+
     def to_console(self) -> str:
         fatal = [issue for issue in self.issues if issue.fatal]
         advisory = [issue for issue in self.issues if not issue.fatal]

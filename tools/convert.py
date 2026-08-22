@@ -27,6 +27,22 @@ def discover_chms(repo: Path) -> list[Path]:
 
 
 def _report_issue(code: str, item: object, default_path: str = ""):
+    if code == "unmapped_span_classes" and isinstance(item, (list, tuple)):
+        class_name = str(item[0]) if item else ""
+        count = item[1] if len(item) > 1 else 0
+        topics = [str(path) for path in item[2]] if len(item) > 2 else []
+        path = topics[0] if topics else default_path
+        detail = {"class": class_name, "count": count, "topics": topics}
+        message = f"span class '{class_name}' reported {count} time(s)"
+        return make_issue(code, message, path, detail)
+    if code == "duplicate_titles" and isinstance(item, (list, tuple)):
+        title = str(item[0]) if item else ""
+        raw_topics = item[1] if len(item) > 1 else []
+        topics = [str(path) for path in raw_topics] if isinstance(raw_topics, list) else [str(raw_topics)]
+        path = topics[0] if topics else default_path
+        detail = {"title": title, "topics": topics}
+        message = f"duplicate title '{title}' appears in {len(topics)} topics"
+        return make_issue(code, message, path, detail)
     path = item[0] if isinstance(item, (list, tuple)) and item else str(item)
     message = item[1] if isinstance(item, (list, tuple)) and len(item) > 1 else str(item)
     return make_issue(code, str(message), str(path or default_path), item)
@@ -45,7 +61,11 @@ def _write_readme(stage: Path, chms: list[dict], pdf_count: int,
         f"- **Source ref:** `{source_ref}`", f"- **CHMs:** {len(chms)}   **PDFs:** {pdf_count}", "",
         inventory,
         "",
-        report.to_readme(), "", "Full detail is in [`author-report.json`](author-report.json).", "",
+        report.to_readme(), "",
+        (
+            "Full detail: [author-report.md](author-report.md) for authors; "
+            "[author-report.json](author-report.json) for automation."
+        ), "",
         "## CHM navigation", "",
     ]
     for result in chms:
@@ -162,7 +182,11 @@ def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
             report.add(make_issue(
                 "source_replacement_character",
                 f"source PDF replacement characters: {details}",
-                emitted_rel, details,
+                str(source_rel), {
+                    "source_pdf": str(source_rel),
+                    "generated_markdown": emitted_rel,
+                    "pages": details,
+                },
             ))
         for code, items in pdf_report.items():
             if code == "pdf_source_replacements":
@@ -187,6 +211,10 @@ def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
         # report target, render navigation, then validate all links before the
         # final report/count rewrite.
         (staging.path / "author-report.json").write_text("{}\n", encoding="utf-8")
+        (staging.path / "author-report.md").write_text(
+            "# Author quality report\n\nBuild validation is in progress.\n",
+            encoding="utf-8",
+        )
         _write_readme(staging.path, chm_results, pdf_result.get("converted", 0), source_ref, report)
         report.extend(validate_corpus(
             staging.path,
@@ -197,6 +225,9 @@ def _build_locked(repo: Path, out: Path, work: Path, *, reuse: bool = False,
         _write_readme(staging.path, chm_results, pdf_result.get("converted", 0), source_ref, report)
         (staging.path / "author-report.json").write_text(
             report.to_json(), encoding="utf-8"
+        )
+        (staging.path / "author-report.md").write_text(
+            report.to_markdown(), encoding="utf-8"
         )
         if report.fatal:
             return {"report": report.as_dict(), "chms": chm_results,

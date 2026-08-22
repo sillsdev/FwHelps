@@ -24,6 +24,7 @@ class IssueCatalogTests(unittest.TestCase):
 
     def test_policies_are_immutable_and_cover_representative_issues(self):
         self.assertIsInstance(ISSUE_CATALOG["pdf_failure"], IssuePolicy)
+        self.assertTrue(all(policy.guidance.strip() for policy in ISSUE_CATALOG.values()))
         self.assertTrue(ISSUE_CATALOG["pdf_failure"].fatal)
         self.assertEqual("exporter", ISSUE_CATALOG["pdf_failure"].provenance)
         self.assertFalse(ISSUE_CATALOG["raw_html"].fatal)
@@ -32,6 +33,10 @@ class IssueCatalogTests(unittest.TestCase):
             ISSUE_CATALOG["raw_html"].fatal = True
         with self.assertRaises(TypeError):
             LABELS["raw_html"] = "changed"
+
+    def test_public_policy_constructor_remains_source_compatible(self):
+        policy = IssuePolicy("Example", False, "source")
+        self.assertEqual("", policy.guidance)
 
     def test_make_issue_uses_catalog_policy(self):
         issue = make_issue("html_tables_kept", "table kept", "doc.pdf")

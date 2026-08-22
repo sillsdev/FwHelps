@@ -224,6 +224,15 @@ class ConvertOrchestrationTests(unittest.TestCase):
 
             self.assertTrue(result["promoted"])
             self.assertFalse(list((repo / "export").rglob(".fwhelps-export-*.lock")))
+            self.assertTrue((repo / "export" / "author-report.md").is_file())
+            self.assertTrue((repo / "export" / "author-report.json").is_file())
+            author_report = (repo / "export" / "author-report.md").read_text(encoding="utf-8")
+            self.assertIn("# Author quality report", author_report)
+            self.assertIn("## Summary", author_report)
+            self.assertNotIn("Build validation is in progress.", author_report)
+            readme = (repo / "export" / "README.md").read_text(encoding="utf-8")
+            self.assertIn("[author-report.md](author-report.md)", readme)
+            self.assertIn("[author-report.json](author-report.json)", readme)
 
     def test_chm_private_stage_does_not_publish_destination_lockfile(self):
         with tempfile.TemporaryDirectory() as raw:
@@ -948,7 +957,7 @@ class ConvertOrchestrationTests(unittest.TestCase):
             self.assertEqual(1, len(replacement))
             self.assertFalse(replacement[0]["fatal"])
 
-    def test_pdf_replacement_provenance_maps_to_emitted_path_and_export_is_fatal(self):
+    def test_pdf_replacement_reports_authored_and_generated_paths(self):
         with tempfile.TemporaryDirectory() as raw:
             repo = Path(raw)
             (repo / "Using_Help.chm").write_bytes(b"fixture")
@@ -973,15 +982,64 @@ class ConvertOrchestrationTests(unittest.TestCase):
                 result = convert.build(repo, repo / "export", repo / "work")
             source = [issue for issue in result["report"]["issues"]
                       if issue["code"] == "source_replacement_character"
-                      and issue["path"] == "pdf/docs/Guide_With_Spaces.md"]
+                      and issue["path"] == "docs/Guide With Spaces.pdf"]
             self.assertEqual(1, len(source))
             self.assertFalse(source[0]["fatal"])
             self.assertEqual("source", source[0]["provenance"])
+            self.assertEqual(
+                "pdf/docs/Guide_With_Spaces.md",
+                source[0]["detail"]["generated_markdown"],
+            )
             exporter = [issue for issue in result["report"]["issues"]
                         if issue["path"] == "docs/Generated.pdf"]
             self.assertTrue(exporter)
             self.assertTrue(exporter[0]["fatal"])
             self.assertFalse(result["promoted"])
+
+    def test_unmapped_span_report_retains_affected_robohelp_topic(self):
+        with tempfile.TemporaryDirectory() as raw:
+            root = Path(raw)
+            chm = root / "Using_Help.chm"
+            chm.write_bytes(b"fixture")
+
+            def fake_extract(_chm, extraction):
+                extraction.mkdir(parents=True)
+                (extraction / "topic.htm").write_text(
+                    "<title>Topic</title><h2>Topic</h2>", encoding="cp1252"
+                )
+
+            with mock.patch.object(
+                chm_convert, "run_pandoc", return_value=("# Topic\n", ["MysteryClass"])
+            ):
+                result = chm_convert.convert_chm(
+                    chm, root / "work", root / "out", extractor=fake_extract
+                )
+
+            self.assertEqual(
+                ["MysteryClass", 1, ["topic.htm"]],
+                result["report"]["unmapped_span_classes"][0],
+            )
+
+    def test_producer_issue_normalization_uses_authored_topic_paths(self):
+        unmapped = convert._report_issue(
+            "unmapped_span_classes",
+            ["MysteryClass", 2, ["a.htm", "folder/b.htm"]],
+            "Using_Help.chm",
+        )
+        duplicate = convert._report_issue(
+            "duplicate_titles", ["Same title", ["one.htm", "two.htm"]]
+        )
+
+        self.assertEqual("a.htm", unmapped.path)
+        self.assertEqual(
+            {"class": "MysteryClass", "count": 2, "topics": ["a.htm", "folder/b.htm"]},
+            unmapped.detail,
+        )
+        self.assertEqual("one.htm", duplicate.path)
+        self.assertEqual(
+            {"title": "Same title", "topics": ["one.htm", "two.htm"]},
+            duplicate.detail,
+        )
 
     @unittest.skipUnless(shutil.which("pandoc"), "pandoc is required")
     def test_pandoc_lua_keeps_nested_lists_and_parenthesized_image_targets(self):
