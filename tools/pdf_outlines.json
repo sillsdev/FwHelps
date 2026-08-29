@@ -1,0 +1,1751 @@
+{
+ "FieldWorks Writing Systems.pdf": {
+  "outline": [
+   [
+    2,
+    "FieldWorks"
+   ],
+   [
+    3,
+    "Writing Systems"
+   ],
+   [
+    4,
+    "Add a Writing System to a FieldWorks project"
+   ],
+   [
+    4,
+    "Add a new Writing System using the Writing System Wizard"
+   ],
+   [
+    5,
+    "Language ID: Find the relevant language in the Ethnologue"
+   ],
+   [
+    6,
+    "Result: one match"
+   ],
+   [
+    6,
+    "Result: duplicate language names"
+   ],
+   [
+    6,
+    "Result: many matches"
+   ],
+   [
+    6,
+    "Result: apparent duplicate matches"
+   ],
+   [
+    6,
+    "Result: search by country name"
+   ],
+   [
+    6,
+    "Result: no matches"
+   ],
+   [
+    5,
+    "Writing System: Distinguish the Writing System"
+   ],
+   [
+    5,
+    "Appearance: Default fonts"
+   ],
+   [
+    5,
+    "Input: Keyboard"
+   ],
+   [
+    5,
+    "Additional information"
+   ],
+   [
+    6,
+    "Modifying properties of a Writing System"
+   ],
+   [
+    6,
+    "Full name of a Writing System"
+   ],
+   [
+    6,
+    "Information about keyboards and Keyman"
+   ]
+  ],
+  "headings": 18
+ },
+ "Language Explorer/Training/Publishing FLEx Dictionaries Using Microsoft Word.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    2,
+    "2 Exporting a dictionary to Word"
+   ],
+   [
+    3,
+    "2.1 Preparation in FLEx prior to export"
+   ],
+   [
+    4,
+    "Saving list reference names in the Word document"
+   ],
+   [
+    3,
+    "2.2 Exporting a dictionary from FLEx to Word"
+   ],
+   [
+    3,
+    "2.3 Preparing a Word dictionary for publication"
+   ],
+   [
+    4,
+    "Page layout"
+   ],
+   [
+    4,
+    "Exported styles in Word"
+   ],
+   [
+    4,
+    "2.3.2.1 Context styles for Before, Between, and After text"
+   ],
+   [
+    4,
+    "Add page headers with guidewords"
+   ],
+   [
+    4,
+    "2.3.3.1 Changing Headers and Footers"
+   ],
+   [
+    4,
+    "How to fix incorrect guidewords on some pages"
+   ],
+   [
+    5,
+    "7. The remaining pages should continue with the normal page headers."
+   ],
+   [
+    4,
+    "Convert letter headings to single column"
+   ],
+   [
+    4,
+    "Pictures in Word"
+   ],
+   [
+    4,
+    "Editing the internal Word docx file"
+   ],
+   [
+    4,
+    "Dictionary front matter and back matter"
+   ],
+   [
+    2,
+    "3 Useful features in Word"
+   ],
+   [
+    3,
+    "3.1 Basics of Styles in Word"
+   ],
+   [
+    3,
+    "3.2 Preventing styles from changing: dynamic updating"
+   ],
+   [
+    3,
+    "3.3 Advanced Find and Replace"
+   ],
+   [
+    4,
+    "3.3.1Finding styles"
+   ],
+   [
+    4,
+    "Replacing styles"
+   ],
+   [
+    4,
+    "Special codes"
+   ],
+   [
+    4,
+    "Wild cards"
+   ],
+   [
+    4,
+    "Adding text before or after a style"
+   ],
+   [
+    3,
+    "3.4 Removing unused styles in Word"
+   ],
+   [
+    3,
+    "3.5 Word macros"
+   ],
+   [
+    4,
+    "Example recording a macro and running it through your document"
+   ],
+   [
+    3,
+    "3.6 Editing the internal Word docx file"
+   ],
+   [
+    2,
+    "4 Bidirectional dictionaries in Word"
+   ],
+   [
+    3,
+    "4.1 Enabling right-to-left publications in Word"
+   ],
+   [
+    3,
+    "4.2 Basic RTL layout in FLEx and Word"
+   ],
+   [
+    4,
+    "Settings in FLEx"
+   ],
+   [
+    4,
+    "Settings in Word"
+   ],
+   [
+    3,
+    "4.3 Bidirectional algorithm"
+   ],
+   [
+    3,
+    "4.4 Formatting bidirectional entries in FLEx"
+   ],
+   [
+    5,
+    "Word:"
+   ]
+  ],
+  "headings": 38
+ },
+ "Language Explorer/Training/Technical Notes on FieldWorks Send-Receive.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Send/Receive Introduction"
+   ],
+   [
+    2,
+    "2 Getting started"
+   ],
+   [
+    3,
+    "2.1 Starting up a Project (FLEx) Send/Receive"
+   ],
+   [
+    3,
+    "2.2 Starting up a Lexicon (LIFT) Send/Receive in FLEx."
+   ],
+   [
+    3,
+    "2.3 Starting up Send/Receive in WeSay."
+   ],
+   [
+    3,
+    "2.4 Chorus Hub startup"
+   ],
+   [
+    3,
+    "2.5 Lexbox Internet setup"
+   ],
+   [
+    2,
+    "3 How it works, or why it doesn’t"
+   ],
+   [
+    3,
+    "3.1 Lexicon examples"
+   ],
+   [
+    3,
+    "3.2 General concepts"
+   ],
+   [
+    3,
+    "3.3 Interlinear examples"
+   ],
+   [
+    3,
+    "3.4 WeSay/LIFT collaboration"
+   ],
+   [
+    3,
+    "3.5 FieldWorks/Paratext collaboration"
+   ],
+   [
+    3,
+    "3.6 Linked files"
+   ],
+   [
+    3,
+    "3.7 FieldWorks and FLEx Bridge versions"
+   ],
+   [
+    4,
+    "3.7.1 FLEx Bridge mercurial compatibility"
+   ],
+   [
+    3,
+    "3.8 FieldWorks project name"
+   ],
+   [
+    2,
+    "4 Technical details"
+   ],
+   [
+    3,
+    "4.1 Chorus Hub issues"
+   ],
+   [
+    3,
+    "4.2 Using FieldWorks backups and Send/Receive"
+   ],
+   [
+    3,
+    "4.3 FLEx backups and Send/Receive"
+   ],
+   [
+    4,
+    "4.3.1 Using FLEx Backup with Send/Receive data"
+   ],
+   [
+    4,
+    "4.3.2 Using FLEx Backup without Send/Receive data"
+   ],
+   [
+    3,
+    "4.4 Viewing Send/Receive history"
+   ],
+   [
+    3,
+    "4.5 Recovering lost data from S/R"
+   ],
+   [
+    4,
+    "4.5.1 Repairing lost or damaged local repo"
+   ],
+   [
+    4,
+    "4.5.2 Using Repository Utility"
+   ],
+   [
+    4,
+    "4.5.3 Using S/R to repair or change data"
+   ],
+   [
+    4,
+    "4.5.4 Dealing with defective repos"
+   ],
+   [
+    4,
+    "4.5.5 Recovering data in difficult situations"
+   ],
+   [
+    3,
+    "4.6 To switch a WeSay bridge user to another FLEx user"
+   ],
+   [
+    3,
+    "4.7 FieldWorks and WeSay compatibility issues"
+   ],
+   [
+    3,
+    "4.8 Modifying FLEx lists outside of FLEx"
+   ],
+   [
+    4,
+    "4.? Unfinished notes"
+   ]
+  ],
+  "headings": 34
+ },
+ "Language Explorer/Training/Technical Notes on Interlinear Import.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Importing SFM Interlinear text"
+   ],
+   [
+    3,
+    "Special intermediate file"
+   ],
+   [
+    3,
+    "Constructing literal translations"
+   ],
+   [
+    2,
+    "2 FieldWorks FLExText Interlinear XML"
+   ],
+   [
+    3,
+    "Dealing with audio in interlinear"
+   ]
+  ],
+  "headings": 5
+ },
+ "Language Explorer/Training/Technical Notes on LinguaLinks Database Import.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Data model differences"
+   ],
+   [
+    3,
+    "1.1 Subentry and minor entry differences"
+   ],
+   [
+    3,
+    "1.2 LinguaLinks annotations"
+   ],
+   [
+    4,
+    "Steps: Entry Notes"
+   ],
+   [
+    3,
+    "1.3 Interlinear text sections"
+   ],
+   [
+    3,
+    "1.4 Interlinear text collections"
+   ],
+   [
+    3,
+    "1.5 Thesaurus links"
+   ],
+   [
+    3,
+    "1.6 Nested sense limitations"
+   ],
+   [
+    3,
+    "1.7 LinguaLinks sense media files"
+   ],
+   [
+    3,
+    "1.8 Limitations with interlinear text baselines in multiple scripts"
+   ],
+   [
+    3,
+    "1.9 Pictures and pronunciation files"
+   ],
+   [
+    3,
+    "1.10 LinguaLinks subentry types"
+   ],
+   [
+    2,
+    "2 Exporting data from LinguaLinks"
+   ],
+   [
+    3,
+    "2.1 Steps: LinguaLinks export"
+   ],
+   [
+    3,
+    "2.2 Steps: Listing fonts used in LinguaLinks"
+   ],
+   [
+    2,
+    "3 Importing LinguaLinks data into Language Explorer"
+   ],
+   [
+    3,
+    "3.1 Importing into existing Language Explorer data"
+   ],
+   [
+    3,
+    "3.2 Steps: Importing LinguaLinks data"
+   ],
+   [
+    2,
+    "4 Technical process flow of LinguaLinks import"
+   ],
+   [
+    2,
+    "5 Advanced import problem solving"
+   ],
+   [
+    3,
+    "5.1 Partial processing"
+   ],
+   [
+    3,
+    "5.2 Step: Testing encoding converters"
+   ],
+   [
+    3,
+    "5.3 Really large databases"
+   ],
+   [
+    3,
+    "5.3 Converting bar codes"
+   ],
+   [
+    3,
+    "5.3 Missing writing systems"
+   ]
+  ],
+  "headings": 25
+ },
+ "Language Explorer/Training/Technical Notes on SFM Database Import.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Mapping SFM fields to the FieldWorks Language Explorer model"
+   ],
+   [
+    3,
+    "1.1 Basic field mapping"
+   ],
+   [
+    3,
+    "1.2 Text fields"
+   ],
+   [
+    3,
+    "1.3 List references"
+   ],
+   [
+    3,
+    "1.4 Semantic domains"
+   ],
+   [
+    3,
+    "1.5 Repeating fields"
+   ],
+   [
+    3,
+    "1.6 Multiple items per field"
+   ],
+   [
+    3,
+    "1.7 Lexical functions"
+   ],
+   [
+    3,
+    "1.8 References to entries and senses"
+   ],
+   [
+    3,
+    "1.9 Multiple uses of an SFM marker"
+   ],
+   [
+    3,
+    "1.10 In-line markers, or character mapping"
+   ],
+   [
+    3,
+    "1.11 Variants"
+   ],
+   [
+    4,
+    "\\lx abc"
+   ],
+   [
+    3,
+    "1.12 Subentries"
+   ],
+   [
+    3,
+    "1.13 Nested senses"
+   ],
+   [
+    3,
+    "1.14 Allomorph conditions"
+   ],
+   [
+    3,
+    "1.15 Import residue"
+   ],
+   [
+    3,
+    "1.15 Custom fields"
+   ],
+   [
+    3,
+    "1.16 Affix markers"
+   ],
+   [
+    3,
+    "1.17 Picture & Pronunciation files"
+   ],
+   [
+    3,
+    "1.18 MDF supported fields"
+   ],
+   [
+    3,
+    "1.19 Unsupported features"
+   ],
+   [
+    2,
+    "2 Legacy to Unicode encoding conversion"
+   ],
+   [
+    2,
+    "3 Importing SFM data into Language Explorer"
+   ],
+   [
+    2,
+    "4 Resolving errors reported by the SFM readiness check"
+   ],
+   [
+    3,
+    "4.1 Eliminating Internet Explorer warnings when launching ZEdit"
+   ],
+   [
+    2,
+    "5 Technical process flow of SFM import"
+   ],
+   [
+    2,
+    "6 Advanced import problem solving"
+   ],
+   [
+    3,
+    "6.1 Extra processing during importing"
+   ],
+   [
+    3,
+    "6.2 Handling non-MDF standards"
+   ],
+   [
+    2,
+    "7 Language Explorer V3.0 (FieldWorks 6.0) bugs"
+   ]
+  ],
+  "headings": 31
+ },
+ "Language Explorer/Training/Technical Notes on Writing Systems.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Ingredients"
+   ],
+   [
+    3,
+    "1.1 Encoding Converter"
+   ],
+   [
+    3,
+    "1.2 Font"
+   ],
+   [
+    3,
+    "1.3 MSKLC or Keyman keyboard"
+   ],
+   [
+    2,
+    "2 Notes and Recommendations"
+   ],
+   [
+    3,
+    "2.1 Encoding Converters"
+   ],
+   [
+    3,
+    "2.2 Same Script for different languages?"
+   ],
+   [
+    3,
+    "2.3 Multiple Writing Systems for the same language"
+   ],
+   [
+    4,
+    "2.3.1 Creating and adding phonetic and phonemic writing systems to your project"
+   ],
+   [
+    4,
+    "2.3.2 Creating an alternative writing system, e.g. Roman for a non-Roman script"
+   ],
+   [
+    4,
+    "2.3.3 Reordering writing systems"
+   ],
+   [
+    4,
+    "2.2.4 Current limitations on multiple scripts for interlinear baseline texts"
+   ],
+   [
+    2,
+    "3 MSKLC and Keyman setup"
+   ],
+   [
+    4,
+    "Keyman 9 and FieldWorks 8.0.6 and later Notes"
+   ],
+   [
+    4,
+    "Notes for older versions of Keyman and FieldWorks"
+   ],
+   [
+    4,
+    "Keyman 7 Notes"
+   ],
+   [
+    2,
+    "4 Writing System Error Message"
+   ],
+   [
+    3,
+    "Scenario 1"
+   ],
+   [
+    3,
+    "Scenario 2"
+   ],
+   [
+    3,
+    "Scenario 3"
+   ]
+  ],
+  "headings": 20
+ },
+ "Language Explorer/Utilities/AlloGenUserDocumentation.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    3,
+    "1.1 Invoking** **_Allomorph Generator_ from within** **_FLEx_"
+   ],
+   [
+    3,
+    "1.2 Appearance"
+   ],
+   [
+    2,
+    "2 Edit Operations tab"
+   ],
+   [
+    3,
+    "2.1 Operation name and description"
+   ],
+   [
+    3,
+    "2.2 Pattern section"
+   ],
+   [
+    3,
+    "_2.2.1 Match_"
+   ],
+   [
+    3,
+    "_2.2.2 Morph Types_"
+   ],
+   [
+    3,
+    "_2.2.3 Category_"
+   ],
+   [
+    3,
+    "2.3 Actions section"
+   ],
+   [
+    3,
+    "_2.3.1 Replace operations_"
+   ],
+   [
+    3,
+    "_2.3.2 Environments_"
+   ],
+   [
+    3,
+    "_2.3.3 Stem Name_"
+   ],
+   [
+    3,
+    "2.4 Apply operations to drop-down box"
+   ],
+   [
+    3,
+    "2.5 Save changes button"
+   ],
+   [
+    2,
+    "3 Run Operations tab"
+   ],
+   [
+    2,
+    "4 Edit Replace Operations tab"
+   ],
+   [
+    2,
+    "5 Applying operations"
+   ],
+   [
+    2,
+    "6 Restarting** **_Allomorph Generator_"
+   ],
+   [
+    2,
+    "7 Error messages"
+   ],
+   [
+    2,
+    "8 Known problems"
+   ],
+   [
+    2,
+    "9 Support"
+   ]
+  ],
+  "headings": 22
+ },
+ "Language Explorer/Utilities/PcPatrFLExUserDocumentation.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    3,
+    "1.1 Invoking** **_Use PC-PATR with FLEx_ from within** **_FLEx_"
+   ],
+   [
+    3,
+    "1.2 Initial invocation"
+   ],
+   [
+    3,
+    "1.3 Appearance"
+   ],
+   [
+    2,
+    "2 Buttons"
+   ],
+   [
+    3,
+    "2.1 PC-PATR grammar Browse button"
+   ],
+   [
+    3,
+    "2.2 Rootgloss choices"
+   ],
+   [
+    3,
+    "2.3 Advanced"
+   ],
+   [
+    3,
+    "2.4 Help button"
+   ],
+   [
+    3,
+    "2.5 Refresh texts button"
+   ],
+   [
+    3,
+    "2.6 Disambiguate button"
+   ],
+   [
+    3,
+    "2.7 Parse button"
+   ],
+   [
+    2,
+    "3 Parsing a segment"
+   ],
+   [
+    2,
+    "4 Disambiguating a text"
+   ],
+   [
+    2,
+    "5 Restarting** **_Use PC-PATR with FLEx_"
+   ],
+   [
+    3,
+    "4. remember which segment in that text you last selected.<sup>2</sup>"
+   ],
+   [
+    2,
+    "6 Error messages"
+   ],
+   [
+    2,
+    "7 Known problems"
+   ],
+   [
+    2,
+    "8 Support"
+   ],
+   [
+    2,
+    "A. The** **_PcPatr Browser_ tool"
+   ],
+   [
+    2,
+    "A.1 Overview"
+   ],
+   [
+    2,
+    "A.2 Right-to-left script"
+   ],
+   [
+    2,
+    "A.3 Keyboard shortcuts"
+   ]
+  ],
+  "headings": 23
+ },
+ "Language Explorer/Utilities/silewp2007_002.pdf": {
+  "outline": [
+   [
+    2,
+    "Abstract"
+   ],
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    2,
+    "2 Phonological Concepts"
+   ],
+   [
+    2,
+    "3 Implementation Issues"
+   ],
+   [
+    3,
+    "3.1 Syllabification and TBUs"
+   ],
+   [
+    3,
+    "3.2 Lexical Representation"
+   ],
+   [
+    3,
+    "3.3 Tone Rules"
+   ],
+   [
+    4,
+    "3.3.1 Operations"
+   ],
+   [
+    4,
+    "3.3.2 Operation Parameters"
+   ],
+   [
+    4,
+    "3.3.3 Rule Application"
+   ],
+   [
+    4,
+    "3.3.4 Edge Rules"
+   ],
+   [
+    4,
+    "3.3.5 Conditions on Rules"
+   ],
+   [
+    4,
+    "3.3.6 Example"
+   ],
+   [
+    3,
+    "3.4 Orthographic Output"
+   ],
+   [
+    2,
+    "4 Using TonePars with AMPLE"
+   ],
+   [
+    4,
+    "(41) AMPLE **TonePars"
+   ],
+   [
+    2,
+    "5 Conclusion"
+   ],
+   [
+    2,
+    "Appendix A: List of Field Codes"
+   ],
+   [
+    2,
+    "Appendix B: Annotated Syntax for Tone Rules"
+   ],
+   [
+    2,
+    "Endnotes"
+   ],
+   [
+    2,
+    "References"
+   ]
+  ],
+  "headings": 21
+ },
+ "Language Explorer/Utilities/ToneParsFLExUserDocumentation.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    3,
+    "1.1 Invoking** **_Use TonePars with FLEx_ from within** **_FLEx_"
+   ],
+   [
+    3,
+    "1.2 Initial invocation"
+   ],
+   [
+    3,
+    "1.3 Appearance"
+   ],
+   [
+    2,
+    "2 Buttons and check boxes"
+   ],
+   [
+    3,
+    "2.3 Trace Tone Processing check box"
+   ],
+   [
+    3,
+    "2.4 Tracing Options button"
+   ],
+   [
+    3,
+    "2.5 Show Log button"
+   ],
+   [
+    3,
+    "2.6 Help button"
+   ],
+   [
+    3,
+    "2.7 Verify Control File Information check box"
+   ],
+   [
+    3,
+    "2.8 Ignore Context check box"
+   ],
+   [
+    3,
+    "2.9 Refresh Texts button"
+   ],
+   [
+    3,
+    "2.10 Parse this text button"
+   ],
+   [
+    3,
+    "2.11 Parse this segment button"
+   ],
+   [
+    2,
+    "3 Maximum analyses setting for** **_XAmple_"
+   ],
+   [
+    2,
+    "4 Restarting** **_Use TonePars with FLEx_"
+   ],
+   [
+    2,
+    "5 Known problems"
+   ],
+   [
+    2,
+    "6 Output files"
+   ],
+   [
+    2,
+    "7 Error messages"
+   ],
+   [
+    2,
+    "8 Support"
+   ]
+  ],
+  "headings": 20
+ },
+ "Language Explorer/Utilities/VarGenUserDocumentation.pdf": {
+  "outline": [
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    3,
+    "1.1 Invoking** **_Variant Generator_ from within** **_FLEx_"
+   ],
+   [
+    3,
+    "1.2 Appearance"
+   ],
+   [
+    2,
+    "2 Edit Operations tab"
+   ],
+   [
+    3,
+    "2.1 Operation name and description"
+   ],
+   [
+    3,
+    "2.2 Pattern section"
+   ],
+   [
+    3,
+    "_2.2.1 Match_"
+   ],
+   [
+    3,
+    "_2.2.2 Morph Types_"
+   ],
+   [
+    3,
+    "_2.2.3 Category_"
+   ],
+   [
+    3,
+    "2.3 Actions section"
+   ],
+   [
+    3,
+    "_2.3.1 Replace operations_"
+   ],
+   [
+    4,
+    "Publish entry in"
+   ],
+   [
+    3,
+    "_2.3.2 Variant types_"
+   ],
+   [
+    3,
+    "_2.3.3 Show minor entry_"
+   ],
+   [
+    3,
+    "_2.3.4 Publish entry in_"
+   ],
+   [
+    3,
+    "2.4 Apply operations to drop-down box"
+   ],
+   [
+    3,
+    "2.5 Save changes button"
+   ],
+   [
+    2,
+    "3 Run Operations tab"
+   ],
+   [
+    2,
+    "4 Edit Replace Operations tab"
+   ],
+   [
+    2,
+    "5 Applying operations"
+   ],
+   [
+    2,
+    "6 Restarting** **_Variant Generator_"
+   ],
+   [
+    2,
+    "7 Error messages"
+   ],
+   [
+    2,
+    "8 Known problems"
+   ],
+   [
+    2,
+    "9 Support"
+   ]
+  ],
+  "headings": 24
+ },
+ "WW-ConceptualIntro/ConceptualIntroFLEx.pdf": {
+  "outline": [
+   [
+    2,
+    "Abbreviations"
+   ],
+   [
+    2,
+    "1 Introduction"
+   ],
+   [
+    3,
+    "1.1 Key issues"
+   ],
+   [
+    4,
+    "1.1.1 Inflection"
+   ],
+   [
+    4,
+    "1.1.2 Derivation"
+   ],
+   [
+    4,
+    "1.1.3 Ambiguity"
+   ],
+   [
+    4,
+    "1.1.4 Epenthesis"
+   ],
+   [
+    4,
+    "1.1.5 Discontinuous morphemes"
+   ],
+   [
+    4,
+    "1.1.6 Infixation"
+   ],
+   [
+    4,
+    "1.1.7 Reduplication"
+   ],
+   [
+    4,
+    "1.1.8 Root and pattern morphology"
+   ],
+   [
+    4,
+    "1.1.9 Metathesis"
+   ],
+   [
+    4,
+    "1.1.10 Morphemes that may be null"
+   ],
+   [
+    3,
+    "1.2 Tasks for any morphological parser"
+   ],
+   [
+    2,
+    "2 Morphotactics"
+   ],
+   [
+    3,
+    "2.1 Affixation"
+   ],
+   [
+    4,
+    "2.1.1 Unclassified affixes"
+   ],
+   [
+    4,
+    "2.1.2 Inflectional affixes"
+   ],
+   [
+    4,
+    "_2.1.2.1 Simple example_"
+   ],
+   [
+    4,
+    "_2.1.2.2 Optional affix slots_"
+   ],
+   [
+    4,
+    "_2.1.2.3 Multiple templates_"
+   ],
+   [
+    4,
+    "_2.1.2.4 Discontinuous morpheme_"
+   ],
+   [
+    4,
+    "_2.1.2.5 Inflection and categories considerations_"
+   ],
+   [
+    4,
+    "_2.1.2.6 Inflection classes_"
+   ],
+   [
+    4,
+    "2.1.2.6.1 Inflection subclasses"
+   ],
+   [
+    4,
+    "Figure 5. How to Create Isthmus Zapotec Inflection Classes."
+   ],
+   [
+    4,
+    "2.1.2.6.2 Inflection classes and category organization"
+   ],
+   [
+    4,
+    "_2.1.2.7 Agreement and other inflection features_"
+   ],
+   [
+    4,
+    "_2.1.2.8 Inflection classes versus inflection features_"
+   ],
+   [
+    4,
+    "_2.1.2.9 Underspecified inflectional affixes_"
+   ],
+   [
+    4,
+    "2.1.3 Derivational affixes"
+   ],
+   [
+    4,
+    "_2.1.3.1 Major category-changing derivational affixes_"
+   ],
+   [
+    4,
+    "_2.1.3.2 Sub-category-changing derivational affixes_"
+   ],
+   [
+    4,
+    "_2.1.3.3 Non-category-changing derivational affixes_"
+   ],
+   [
+    4,
+    "_2.1.3.4 Inflection class and derivational affixes_"
+   ],
+   [
+    4,
+    "2.1.3.4.1 Inflection class may change"
+   ],
+   [
+    4,
+    "2.1.3.4.2 Inflection class does not change"
+   ],
+   [
+    4,
+    "_2.1.3.5 Inflection Features and Derivational Affixes_"
+   ],
+   [
+    4,
+    "_2.1.3.6 Category-changing derivational affixes and category organization_"
+   ],
+   [
+    4,
+    "_2.1.3.7 Underspecified derivational affixes_"
+   ],
+   [
+    4,
+    "2.1.4 Derivation outside of inflection"
+   ],
+   [
+    4,
+    "2.1.5 Derivation versus inflection"
+   ],
+   [
+    4,
+    "2.1.6 Exception “features”"
+   ],
+   [
+    3,
+    "2.2 Stem compounding"
+   ],
+   [
+    4,
+    "2.2.1 Headed compounds"
+   ],
+   [
+    4,
+    "2.2.2 Non-headed compounds"
+   ],
+   [
+    4,
+    "2.2.3 Incorporation"
+   ],
+   [
+    4,
+    "_2.2.3.1 Incorporation as a simple headed compound_"
+   ],
+   [
+    4,
+    "_2.2.3.2 Incorporation as a headed compound with override_"
+   ],
+   [
+    4,
+    "2.2.4 Affixes between roots in compounds"
+   ],
+   [
+    4,
+    "2.2.5 Compound rules and categories considerations"
+   ],
+   [
+    4,
+    "2.2.6 Restricting the productivity of a compound rule"
+   ],
+   [
+    3,
+    "2.3 Clitics"
+   ],
+   [
+    4,
+    "Figure 23. How to Create a Clitic."
+   ],
+   [
+    3,
+    "2.4 Ad hoc morpheme-oriented rules"
+   ],
+   [
+    4,
+    "2.4.1 Creating morpheme-oriented ad hoc rules"
+   ],
+   [
+    4,
+    "2.4.2 Grouping ad hoc morpheme rules"
+   ],
+   [
+    4,
+    "Figure 25. How to Create a Group of Morpheme-oriented Ad Hoc Rules."
+   ],
+   [
+    2,
+    "3 Morphophonemics"
+   ],
+   [
+    3,
+    "3.1 Overview"
+   ],
+   [
+    4,
+    "3.1.1 Phoneme sets"
+   ],
+   [
+    4,
+    "_3.1.1.1 Phonological features_"
+   ],
+   [
+    4,
+    "_3.1.1.2 Digraphs_"
+   ],
+   [
+    4,
+    "_3.1.1.3 Tones_"
+   ],
+   [
+    4,
+    "3.1.1.3.1 No forms conditioned by tone"
+   ],
+   [
+    4,
+    "3.1.1.3.2 Forms conditioned by tone"
+   ],
+   [
+    4,
+    "3.1.2 Natural classes"
+   ],
+   [
+    4,
+    "Figure 29. How to Create Natural Classes."
+   ],
+   [
+    4,
+    "3.1.3 Allomorph environments"
+   ],
+   [
+    4,
+    "(65) / _ [C] / _ #"
+   ],
+   [
+    4,
+    "3.1.4 Allomorph ordering"
+   ],
+   [
+    4,
+    "_3.1.4.1 Free fluctuation_"
+   ],
+   [
+    3,
+    "3.2 Reduplication"
+   ],
+   [
+    4,
+    "3.2.1 Full reduplication"
+   ],
+   [
+    4,
+    "_3.2.1.1 Writing the pattern for full reduplication_"
+   ],
+   [
+    4,
+    "3.2.2 Partial reduplication"
+   ],
+   [
+    4,
+    "_3.2.2.1 Writing the pattern for partial reduplication_"
+   ],
+   [
+    3,
+    "3.3 Infixation"
+   ],
+   [
+    4,
+    "3.3.1 Writing the infixation environment"
+   ],
+   [
+    4,
+    "3.3.2 Infixation and root and pattern morphology"
+   ],
+   [
+    3,
+    "3.4 Epenthesis"
+   ],
+   [
+    3,
+    "3.5 Metathesis"
+   ],
+   [
+    3,
+    "3.6 Morphemes that may be null"
+   ],
+   [
+    3,
+    "3.7 Non-phonologically conditioned allomorphy"
+   ],
+   [
+    4,
+    "3.7.1 Stem allomorphs conditioned by morpho-syntactic features"
+   ],
+   [
+    4,
+    "Figure 38. How to Create and Use Stem Allomorph Labels."
+   ],
+   [
+    4,
+    "3.7.2 Affix allomorphs conditioned by morpho-syntactic features"
+   ],
+   [
+    3,
+    "3.8 Irregularly inflected forms"
+   ],
+   [
+    3,
+    "3.9 Coalescence"
+   ],
+   [
+    3,
+    "3.10 Ad hoc allomorph-oriented rules"
+   ],
+   [
+    4,
+    "3.10.1 Creating ad hoc allomorph-oriented rules"
+   ],
+   [
+    4,
+    "3.10.2 Grouping ad hoc allomorph rules"
+   ],
+   [
+    2,
+    "4 Lexical entry considerations"
+   ],
+   [
+    3,
+    "4.1 Allomorphs"
+   ],
+   [
+    4,
+    "4.1.1 Null allomorphs"
+   ],
+   [
+    4,
+    "4.1.2 Order of allomorphs within a lexical entry"
+   ],
+   [
+    4,
+    "Figure 43. How to Create a Null Allomorph."
+   ],
+   [
+    3,
+    "4.2 Morpheme types"
+   ],
+   [
+    3,
+    "4.3 Circumfixes"
+   ],
+   [
+    3,
+    "4.4 Senses/Glosses"
+   ],
+   [
+    2,
+    "5 Other considerations"
+   ],
+   [
+    3,
+    "5.1 Exceptional Case for Compound Rules"
+   ],
+   [
+    2,
+    "6 The phonological rule-based parser"
+   ],
+   [
+    3,
+    "6.1 Item and process"
+   ],
+   [
+    4,
+    "6.1.1 Affix process rules"
+   ],
+   [
+    4,
+    "_6.1.1.1 Reduplication as a process_"
+   ],
+   [
+    4,
+    "6.1.1.1.1 Full reduplication as a process"
+   ],
+   [
+    4,
+    "6.1.1.1.2 Partial reduplication as a process"
+   ],
+   [
+    4,
+    "_6.1.1.2 Infixation as a process_"
+   ],
+   [
+    4,
+    "_6.1.1.3 Circumfixation as a process_"
+   ],
+   [
+    4,
+    "6.1.2 Phonological rules"
+   ],
+   [
+    4,
+    "_6.1.2.1 “Regular” phonological rules_"
+   ],
+   [
+    4,
+    "6.1.2.1.1 Epenthesis"
+   ],
+   [
+    4,
+    "Figure 45. Selaru Epenthesis Rule."
+   ],
+   [
+    4,
+    "6.1.2.1.2 Glide becomes a vowel"
+   ],
+   [
+    4,
+    "Figure 46. Selaru Glide Vowel Rule."
+   ],
+   [
+    4,
+    "6.1.2.1.3 Tone processing"
+   ],
+   [
+    4,
+    "Figure 47. How to Handle Awngi Tone."
+   ],
+   [
+    4,
+    "Figure 48. Awngi Docking Rule."
+   ],
+   [
+    4,
+    "Figure 49. Awngi Deletion Rule."
+   ],
+   [
+    4,
+    "6.1.2.1.4 Nasal assimilation"
+   ],
+   [
+    4,
+    "Figure 51. How to Handle the Unspecified Nasal in Indonesian."
+   ],
+   [
+    4,
+    "Figure 57. How to Use an Exception “Feature” for Unspecified Nasal in Indonesian."
+   ],
+   [
+    4,
+    "_6.1.2.2 Constraining application of “regular” phonological rules_"
+   ],
+   [
+    4,
+    "6.1.2.2.1 Rule applies only with certain categories"
+   ],
+   [
+    4,
+    "6.1.2.2.2 Rule applies only with certain properties"
+   ],
+   [
+    4,
+    "_6.1.2.3 Phonological metathesis rules_"
+   ],
+   [
+    3,
+    "6.2 Tips for making the phonological rule-based parser work effectively."
+   ],
+   [
+    4,
+    "6.2.1 Every phoneme used in the orthography must be defined as a phoneme"
+   ],
+   [
+    4,
+    "6.2.2 The phonological features need to uniquely identify each phoneme"
+   ],
+   [
+    4,
+    "6.2.3 Fully specify each phoneme"
+   ],
+   [
+    4,
+    "6.2.4 Features used in a rule should be explicit"
+   ],
+   [
+    4,
+    "6.2.5 Avoid using archiphonemes that are uppercase equivalents of a character in your orthography"
+   ],
+   [
+    4,
+    "6.2.6 Make sure every affix process rule is complete"
+   ],
+   [
+    4,
+    "6.2.7 Natural classes defined by phonemes may not work as expected"
+   ],
+   [
+    3,
+    "6.3 Known limitations"
+   ],
+   [
+    4,
+    "6.3.1 Affixes are tried only once per word"
+   ],
+   [
+    4,
+    "6.3.2 Natural classes defined by segments may or may not work as expected"
+   ],
+   [
+    4,
+    "6.3.3 Ambiguous digraphs and multigraphs may not work as expected"
+   ],
+   [
+    2,
+    "References"
+   ]
+  ],
+  "headings": 140
+ }
+}

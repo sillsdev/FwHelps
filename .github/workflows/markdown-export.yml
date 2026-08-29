@@ -1,0 +1,213 @@
+name: Markdown Export
+
+on:
+  pull_request:
+  push:
+    branches: [develop]
+    tags: ['FieldWorks*']
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Build and report, but do not publish'
+        type: boolean
+        default: false
+
+concurrency:
+  group: markdown-export
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  PANDOC_VERSION: '3.9.0.2'
+  PANDOC_SHA256: ce4ac48f48aa7eadc1f5dbdf3449a1739f188ecb8c5421c5adc070fe7479e567
+  EXPORT_BRANCH: markdown-export
+
+jobs:
+  validate:
+    name: Validate markdown export
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      EXPORT_DIR: ${{ runner.temp }}/markdown-export
+      WORK_DIR: ${{ runner.temp }}/markdown-export-work
+      DIAGNOSTICS: ${{ runner.temp }}/markdown-export-diagnostics.json
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          path: src
+          fetch-depth: 1
+
+      - name: Install Pandoc and CHM extractor
+        run: |
+          set -euo pipefail
+          curl -fsSL -o /tmp/pandoc.deb \
+            "https://github.com/jgm/pandoc/releases/download/${PANDOC_VERSION}/pandoc-${PANDOC_VERSION}-1-amd64.deb"
+          echo "${PANDOC_SHA256}  /tmp/pandoc.deb" | sha256sum --check --strict
+          sudo dpkg -i /tmp/pandoc.deb
+          # p7zip-full remains a runner-image package dependency for CHM extraction.
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq p7zip-full
+          pandoc --version | head -2
+          7z i > /dev/null && echo "7z ok"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
+        with:
+          version: '0.9.4'
+
+      - name: Provision locked Python and dependencies
+        working-directory: src
+        run: |
+          set -euo pipefail
+          uv python install
+          uv lock --check
+          uv sync --frozen
+
+      - name: Lint converters
+        working-directory: src
+        run: uv run --frozen ruff check tools
+
+      - name: Test converters
+        working-directory: src
+        run: uv run --frozen python -m unittest discover -s tools -p 'test_*.py' -v
+
+      - name: Convert
+        run: |
+          set -euo pipefail
+          rm -rf -- "${EXPORT_DIR}" "${WORK_DIR}"
+          uv run --frozen --directory src python tools/convert.py \
+            --repo src \
+            --out "${EXPORT_DIR}" \
+            --work "${WORK_DIR}" \
+            --diagnostics "${DIAGNOSTICS}" \
+            --source-ref "${GITHUB_SHA::7}"
+
+      - name: Summarise quality report
+        if: always()
+        run: |
+          uv run --frozen --directory src python -c '
+          import json, os
+          from pathlib import Path
+          diagnostics = Path(os.environ["DIAGNOSTICS"])
+          if not diagnostics.exists():
+              print("## Markdown Export\n\nNo diagnostics produced — validation failed early.")
+              raise SystemExit(0)
+          r = json.loads(diagnostics.read_text(encoding="utf-8"))
+          corpus = r.get("corpus", {})
+          summary = r.get("summary", {})
+          source_ref = corpus.get("source_ref", "?")
+          topic_count = corpus.get("topic_count", 0)
+          pdf_count = corpus.get("pdf_count", 0)
+          fatal_count = summary.get("fatal", 0)
+          advisory_count = summary.get("advisory", 0)
+          print(f"## Markdown Export — ref {source_ref}\n")
+          print(f"**{topic_count:,} topics and {pdf_count:,} PDFs converted**\n")
+          print("| Check | Count |\n| --- | ---: |")
+          print(f"| fatal | {fatal_count} |")
+          print(f"| advisory | {advisory_count} |")
+          for code, count in sorted(summary.get("by_code", {}).items()):
+              label = code.replace("_", " ")
+              print(f"| {label} | {count} |")
+          for code in ("source_missing_link", "source_missing_image", "missing_link", "missing_image", "not_in_toc"):
+              items = [item for item in r.get("issues", []) if item.get("code") == code]
+              if items:
+                  label = items[0].get("label", code.replace("_", " "))
+                  print(f"\n<details><summary>{label} ({len(items)})</summary>\n")
+                  for item in items[:50]:
+                      item_label = item.get("label", label)
+                      item_path = item.get("path", "")
+                      item_message = item.get("message", "")
+                      print(f"- **{item_label}** `{item_path}`: {item_message}")
+                  print("\n</details>")
+          ' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: markdown-export-diagnostics
+          path: ${{ runner.temp }}/markdown-export-diagnostics.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Upload completed export
+        if: success()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: markdown-export
+          path: ${{ runner.temp }}/markdown-export
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 14
+
+  publish:
+    name: Publish markdown export
+    needs: validate
+    if: >-
+      needs.validate.result == 'success' &&
+      (github.event_name == 'push' ||
+       (github.event_name == 'workflow_dispatch' && !inputs.dry_run))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download completed export
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0
+        with:
+          name: markdown-export
+          path: ${{ runner.temp }}/markdown-export
+
+      - name: Publish incremental markdown-export history
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXPORT_DIR: ${{ runner.temp }}/markdown-export
+          PUBLISH_DIR: ${{ runner.temp }}/markdown-export-publish
+        run: |
+          set -euo pipefail
+          rm -rf -- "${PUBLISH_DIR}"
+          mkdir -p "${PUBLISH_DIR}"
+          git -C "${PUBLISH_DIR}" init -q -b "${EXPORT_BRANCH}"
+          git -C "${PUBLISH_DIR}" config user.name "github-actions[bot]"
+          git -C "${PUBLISH_DIR}" config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C "${PUBLISH_DIR}" remote add origin \
+            "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git -C "${PUBLISH_DIR}" fetch --no-tags origin \
+              "refs/heads/${EXPORT_BRANCH}:refs/remotes/origin/${EXPORT_BRANCH}"; then
+            git -C "${PUBLISH_DIR}" checkout -q -B "${EXPORT_BRANCH}" \
+              "refs/remotes/origin/${EXPORT_BRANCH}"
+          else
+            git -C "${PUBLISH_DIR}" checkout -q -B "${EXPORT_BRANCH}"
+          fi
+          git -C "${PUBLISH_DIR}" rm -r -q --ignore-unmatch -- .
+          git -C "${PUBLISH_DIR}" clean -fdx -q
+          cp -a "${EXPORT_DIR}/." "${PUBLISH_DIR}/"
+          git -C "${PUBLISH_DIR}" add -A
+          if git -C "${PUBLISH_DIR}" diff --cached --quiet; then
+            echo "${EXPORT_BRANCH} is already up to date"
+          else
+            git -C "${PUBLISH_DIR}" commit -q -m "Markdown export of help and PDFs ${GITHUB_SHA::7}"
+            git -C "${PUBLISH_DIR}" push origin "HEAD:${EXPORT_BRANCH}"
+            echo "published to ${EXPORT_BRANCH}"
+          fi
+          echo "PUBLISH_DIR=${PUBLISH_DIR}" >> "$GITHUB_ENV"
+
+      - name: Tag the export to match the release
+        if: startsWith(github.ref, 'refs/tags/FieldWorks') &&
+            (github.event_name != 'workflow_dispatch' || !inputs.dry_run)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          cd "${PUBLISH_DIR}"
+          TAG="${EXPORT_BRANCH}/${GITHUB_REF_NAME}"
+          if git ls-remote --exit-code --tags origin "refs/tags/${TAG}" > /dev/null 2>&1; then
+            echo "tag already exists: ${TAG}"
+          else
+            git tag -a "${TAG}" -m "Markdown export for ${GITHUB_REF_NAME}"
+            git push origin "refs/tags/${TAG}"
+            echo "tagged ${TAG}"
+          fi
