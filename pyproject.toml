@@ -1,0 +1,17 @@
+[project]
+name = "fwhelps"
+version = "0.0.0"
+description = "FieldWorks help corpus conversion tools"
+requires-python = ">=3.13.5,<3.14"
+dependencies = [
+  "pymupdf==1.28.2",
+  "pymupdf4llm==1.28.2",
+]
+
+[dependency-groups]
+dev = [
+  "ruff==0.16.4",
+]
+
+[tool.uv]
+package = false

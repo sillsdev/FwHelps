@@ -1,0 +1,5 @@
+.chm-work/
+*.pyc
+__pycache__/
+tools/out/
+.fwhelps-export-*.lock
